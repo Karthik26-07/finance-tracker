@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FinTrack - Settings &amp; Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface": "#191c1e",
+              "secondary": "#006b5f",
+              "on-primary-container": "#a1bbff",
+              "surface-container-high": "#e6e8ea",
+              "surface": "#f7f9fb",
+              "on-secondary": "#ffffff",
+              "on-error": "#ffffff",
+              "secondary-container": "#8df5e4",
+              "background": "#f7f9fb",
+              "on-secondary-fixed-variant": "#005048",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed": "#8df5e4",
+              "on-tertiary-fixed": "#410004",
+              "on-background": "#191c1e",
+              "surface-variant": "#e0e3e5",
+              "surface-container": "#eceef0",
+              "outline": "#737783",
+              "on-primary-fixed-variant": "#00429c",
+              "error": "#ba1a1a",
+              "on-error-container": "#93000a",
+              "on-tertiary-container": "#ffa49d",
+              "inverse-primary": "#b0c6ff",
+              "surface-container-highest": "#e0e3e5",
+              "surface-dim": "#d8dadc",
+              "primary": "#003178",
+              "surface-tint": "#2b5bb5",
+              "on-primary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed-variant": "#910816",
+              "inverse-on-surface": "#eff1f3",
+              "tertiary-fixed": "#ffdad7",
+              "primary-fixed-dim": "#b0c6ff",
+              "on-primary-fixed": "#001945",
+              "tertiary-fixed-dim": "#ffb3ae",
+              "on-tertiary": "#ffffff",
+              "primary-fixed": "#d9e2ff",
+              "tertiary": "#71000c",
+              "on-surface-variant": "#434652",
+              "primary-container": "#0d47a1",
+              "inverse-surface": "#2d3133",
+              "surface-container-low": "#f2f4f6",
+              "secondary-fixed-dim": "#70d8c8",
+              "outline-variant": "#c3c6d4",
+              "on-secondary-container": "#007165",
+              "on-secondary-fixed": "#00201c",
+              "error-container": "#ffdad6",
+              "tertiary-container": "#98101a"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Manrope', sans-serif; }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-100 dark:bg-slate-900 flex flex-col p-4 space-y-2 z-50">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-blue-900 dark:text-blue-50 tracking-tighter">FinTrack</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Precision Wealth</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-all scale-95 active:scale-100 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-manrope text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-all scale-95 active:scale-100 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="receipt_long">receipt_long</span>
+<span class="font-manrope text-sm font-medium">Transactions</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-all scale-95 active:scale-100 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span class="font-manrope text-sm font-medium">Accounts</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-all scale-95 active:scale-100 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-manrope text-sm font-medium">Budgets</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-all scale-95 active:scale-100 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-manrope text-sm font-medium">Reports</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-all scale-95 active:scale-100 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-manrope text-sm font-medium">Groups</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-all scale-95 active:scale-100 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="event_repeat">event_repeat</span>
+<span class="font-manrope text-sm font-medium">Recurring</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-800 text-blue-900 dark:text-blue-400 font-bold rounded-lg shadow-sm transition-all scale-95 active:scale-100 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-manrope text-sm font-medium">Settings</span>
+</a>
+</nav>
+<button class="mt-auto w-full py-3 bg-primary text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all hover:bg-primary-container active:scale-95 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span>New Transaction</span>
+</button>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-40 flex justify-between items-center px-8 py-4 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-6">
+<h2 class="text-xl font-bold tracking-tighter text-blue-900 dark:text-blue-50">Settings &amp; Profile</h2>
+<div class="h-6 w-px bg-slate-200"></div>
+<nav class="hidden md:flex items-center gap-6 font-manrope tracking-tight text-sm font-semibold">
+<a class="text-blue-900 dark:text-blue-400 font-bold border-b-2 border-blue-900 pb-1" href="#">Profile</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-900" href="#">Categories</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-900" href="#">Accounts</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-blue-900" href="#">Export/Import</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex gap-2">
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-slate-500">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+<span class="text-sm font-semibold text-slate-700">Alex Sterling</span>
+<img alt="User profile avatar" class="w-8 h-8 rounded-full object-cover" data-alt="portrait of a professional man in his late 30s with short hair wearing a navy blue blazer against a clean office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDI9QLX3qJYvVE6h7IwVQSZO466tTyjI4akyKM73VFHvTd1M_S5txONq1KP4PC91em98-vnbFNiax_7_NGhbXTTUQZ8edoEVc-637buN17HNxPeUrvs4lTQ_Xe3QDfqhg2o76pDbYsc3xjQ099wqb9sEgZERW1_CksPVKCwVAadr5QPhbhW9mJ1_jC_pYVbuK6j3AIlEH3zpoRJlnHeBrMfs01NQwhCn6RVs6Y-Vj4DnPT3-5Jp-dtZS-kTQjC8mtiKPlY88VofW_46"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-8 max-w-6xl mx-auto w-full space-y-8">
+<!-- Hero Header / Profile Section -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Profile Card -->
+<div class="lg:col-span-4 bg-surface-container-lowest rounded-xl p-8 shadow-sm border border-slate-100">
+<div class="flex flex-col items-center text-center space-y-4">
+<div class="relative group">
+<img alt="User profile avatar" class="w-32 h-32 rounded-full object-cover shadow-xl border-4 border-white" data-alt="high quality portrait of a businessman in a professional setting with soft daylighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDN_P1OEonG6l6IDtx1hAa56d9Kvvl3kGoNgqYT5VfZ6wfrq_LKLYgT0eimDoEFG1BLmtHNmY2rbrekfP6LTGcm-gfDf4PTGgZbfQRAwyhHtkI-XRHzESg43aQUFJotAt0MzUf7p5rrYWCuMGHN9-4wrbkYvJ0q2n6mOvg25IRcXyQRqvjXh5FKXoy3NSUm8FAxJnBEdVA4A724GXFX0-xtH3QemYgna__Axar0PrMJAZC8Ju4L8zMDsPkRNDwE2MamXM7AS0l3zc3K"/>
+<button class="absolute bottom-1 right-1 bg-primary text-white p-2 rounded-full shadow-lg hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</button>
+</div>
+<div>
+<h3 class="text-xl font-bold font-headline text-on-surface">Alex Sterling</h3>
+<p class="text-sm text-slate-500 font-medium">Premium Member since 2021</p>
+</div>
+<div class="w-full pt-4 space-y-3">
+<div class="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-400 px-1">
+<span>Security Level</span>
+<span class="text-secondary">High</span>
+</div>
+<div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-4/5"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Form Section -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-xl p-8 shadow-sm border border-slate-100">
+<h4 class="text-lg font-bold font-headline mb-6">General Preferences</h4>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-600 ml-1">Full Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-md px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm font-medium" type="text" value="Alex Sterling"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-600 ml-1">Email Address</label>
+<input class="w-full bg-surface-container-low border-none rounded-md px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm font-medium" type="email" value="alex.s@fintrack.io"/>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-600 ml-1">Default Currency</label>
+<select class="w-full bg-surface-container-low border-none rounded-md px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm font-medium">
+<option>USD ($) - United States Dollar</option>
+<option>EUR (€) - Euro</option>
+<option>GBP (£) - British Pound</option>
+<option>JPY (¥) - Japanese Yen</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-semibold text-slate-600 ml-1">Timezone</label>
+<select class="w-full bg-surface-container-low border-none rounded-md px-4 py-3 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all text-sm font-medium">
+<option>(GMT-05:00) Eastern Time</option>
+<option>(GMT+00:00) UTC</option>
+<option>(GMT+01:00) London</option>
+<option>(GMT+08:00) Singapore</option>
+</select>
+</div>
+</div>
+<div class="pt-4 flex justify-end gap-3">
+<button class="px-6 py-2.5 text-sm font-bold text-slate-500 hover:bg-slate-100 rounded-md transition-all" type="button">Cancel</button>
+<button class="px-6 py-2.5 text-sm font-bold bg-primary text-white rounded-md hover:opacity-90 transition-all shadow-md shadow-primary/10" type="submit">Save Changes</button>
+</div>
+</form>
+</div>
+</section>
+<!-- Category Management -->
+<section class="space-y-6">
+<div class="flex justify-between items-end">
+<div>
+<h4 class="text-lg font-bold font-headline">Category Management</h4>
+<p class="text-sm text-slate-500">Organize your spending with custom labels and colors.</p>
+</div>
+<button class="flex items-center gap-2 text-sm font-bold text-primary hover:bg-primary/5 px-4 py-2 rounded-lg transition-all">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                        Add New Category
+                    </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Category Card -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span>
+</div>
+<div>
+<span class="text-sm font-bold block">Groceries</span>
+<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Expense</span>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-slate-400 hover:text-slate-600">
+<span class="material-symbols-outlined text-sm" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<!-- Category Card -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+</div>
+<div>
+<span class="text-sm font-bold block">Salary</span>
+<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Income</span>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-slate-400 hover:text-slate-600">
+<span class="material-symbols-outlined text-sm" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<!-- Category Card -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="commute">commute</span>
+</div>
+<div>
+<span class="text-sm font-bold block">Transport</span>
+<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Expense</span>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-slate-400 hover:text-slate-600">
+<span class="material-symbols-outlined text-sm" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+<!-- Category Card -->
+<div class="bg-surface-container-lowest p-5 rounded-xl border border-slate-100 shadow-sm flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</div>
+<div>
+<span class="text-sm font-bold block">Health</span>
+<span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Expense</span>
+</div>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-2 text-slate-400 hover:text-slate-600">
+<span class="material-symbols-outlined text-sm" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Data Management & Export Section -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Export Card -->
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-slate-100 shadow-sm">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-lg bg-blue-50 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="file_upload">file_upload</span>
+</div>
+<h4 class="text-lg font-bold font-headline">Export All Data</h4>
+</div>
+<p class="text-sm text-slate-500 mb-8">Download your entire transaction history and account data in your preferred format for external analysis or backups.</p>
+<div class="space-y-3">
+<button class="w-full flex items-center justify-between p-4 bg-surface-container-low hover:bg-surface-container-high rounded-xl transition-all group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400" data-icon="table_view">table_view</span>
+<span class="text-sm font-bold">Comma Separated Values (.csv)</span>
+</div>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform" data-icon="download">download</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 bg-surface-container-low hover:bg-surface-container-high rounded-xl transition-all group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400" data-icon="picture_as_pdf">picture_as_pdf</span>
+<span class="text-sm font-bold">Formal Financial Report (.pdf)</span>
+</div>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform" data-icon="download">download</span>
+</button>
+<button class="w-full flex items-center justify-between p-4 bg-surface-container-low hover:bg-surface-container-high rounded-xl transition-all group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-slate-400" data-icon="code">code</span>
+<span class="text-sm font-bold">Data Interchange (.json)</span>
+</div>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform" data-icon="download">download</span>
+</button>
+</div>
+</div>
+<!-- Import Wizard Card -->
+<div class="bg-surface-container-lowest rounded-xl p-8 border border-slate-100 shadow-sm flex flex-col">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-lg bg-emerald-50 text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="file_download">file_download</span>
+</div>
+<h4 class="text-lg font-bold font-headline">Import from CSV</h4>
+</div>
+<p class="text-sm text-slate-500 mb-6">Quickly migrate your data from other banking apps or spreadsheets using our intelligent mapping wizard.</p>
+<div class="flex-1 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center p-8 space-y-4 hover:border-primary/40 hover:bg-slate-50/50 transition-all cursor-pointer">
+<div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-3xl text-slate-400" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<div class="text-center">
+<p class="text-sm font-bold">Drop your CSV file here</p>
+<p class="text-xs text-slate-400 mt-1">or click to browse from your computer</p>
+</div>
+<p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Max file size: 10MB</p>
+</div>
+<div class="mt-6 flex items-center justify-between text-xs font-bold text-slate-500">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-base" data-icon="info">info</span>
+<span>Mapping wizard will start automatically</span>
+</div>
+<button class="text-primary hover:underline">View CSV Template</button>
+</div>
+</div>
+</section>
+<!-- Danger Zone -->
+<section class="bg-error-container/20 rounded-xl p-8 border border-error-container">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div>
+<h4 class="text-lg font-bold font-headline text-on-error-container">Danger Zone</h4>
+<p class="text-sm text-on-error-container/70">Permanently delete your account and all associated data. This action cannot be undone.</p>
+</div>
+<button class="px-6 py-2.5 text-sm font-bold bg-error text-white rounded-md hover:bg-error/90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm" data-icon="delete_forever">delete_forever</span>
+                        Delete Account
+                    </button>
+</div>
+</section>
+</div>
+</main>
+</body></html>

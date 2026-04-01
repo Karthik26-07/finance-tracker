@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FinTrack - Group Expenses</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface": "#191c1e",
+                        "secondary": "#006b5f",
+                        "on-primary-container": "#a1bbff",
+                        "surface-container-high": "#e6e8ea",
+                        "surface": "#f7f9fb",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#8df5e4",
+                        "background": "#f7f9fb",
+                        "on-secondary-fixed-variant": "#005048",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-fixed": "#8df5e4",
+                        "on-tertiary-fixed": "#410004",
+                        "on-background": "#191c1e",
+                        "surface-variant": "#e0e3e5",
+                        "surface-container": "#eceef0",
+                        "outline": "#737783",
+                        "on-primary-fixed-variant": "#00429c",
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#ffa49d",
+                        "inverse-primary": "#b0c6ff",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-dim": "#d8dadc",
+                        "primary": "#003178",
+                        "surface-tint": "#2b5bb5",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#910816",
+                        "inverse-on-surface": "#eff1f3",
+                        "tertiary-fixed": "#ffdad7",
+                        "primary-fixed-dim": "#b0c6ff",
+                        "on-primary-fixed": "#001945",
+                        "tertiary-fixed-dim": "#ffb3ae",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#d9e2ff",
+                        "tertiary": "#71000c",
+                        "on-surface-variant": "#434652",
+                        "primary-container": "#0d47a1",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-fixed-dim": "#70d8c8",
+                        "outline-variant": "#c3c6d4",
+                        "on-secondary-container": "#007165",
+                        "on-secondary-fixed": "#00201c",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#98101a"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="text-on-surface bg-background">
+<!-- Sidebar Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-slate-100 flex flex-col p-4 space-y-2 z-50">
+<div class="flex items-center gap-3 px-2 mb-8">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-blue-900 tracking-tighter">FinTrack</h1>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Precision Wealth</p>
+</div>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200/50 transition-all rounded-lg font-medium text-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200/50 transition-all rounded-lg font-medium text-sm" href="#">
+<span class="material-symbols-outlined">receipt_long</span> Transactions
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200/50 transition-all rounded-lg font-medium text-sm" href="#">
+<span class="material-symbols-outlined">account_balance</span> Accounts
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200/50 transition-all rounded-lg font-medium text-sm" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span> Budgets
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200/50 transition-all rounded-lg font-medium text-sm" href="#">
+<span class="material-symbols-outlined">analytics</span> Reports
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 bg-white text-blue-900 font-bold rounded-lg shadow-sm font-medium text-sm" href="#">
+<span class="material-symbols-outlined">group</span> Groups
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200/50 transition-all rounded-lg font-medium text-sm" href="#">
+<span class="material-symbols-outlined">event_repeat</span> Recurring
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-600 hover:bg-slate-200/50 transition-all rounded-lg font-medium text-sm" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+</nav>
+<div class="mt-auto p-4 bg-primary rounded-xl text-white">
+<p class="text-xs opacity-80 mb-2">New shared cost?</p>
+<button class="w-full bg-white text-primary font-bold py-2 rounded-lg text-sm transition-transform active:scale-95">
+                New Transaction
+            </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- Top App Bar -->
+<header class="w-full sticky top-0 z-40 bg-slate-50/80 backdrop-blur-md flex justify-between items-center px-8 py-4 border-b border-slate-200/50">
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-sm w-64 focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search groups..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-slate-500 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="flex items-center gap-3 pl-6 border-l border-slate-200">
+<div class="text-right">
+<p class="text-sm font-bold text-on-surface">Alex Thompson</p>
+<p class="text-[10px] text-slate-500 font-medium">Premium Member</p>
+</div>
+<img alt="User avatar" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" data-alt="professional portrait of a young man with a slight smile and casual business attire, soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1DXVqgX0GQ6vmrrtlc74KZg2eXcfcJTa4DvroXT_nuWvPjUBthLPq6COskxpu7c2xkg2uV27DbZiBlu8tr0mBh5c62YD54V8AGd4xuZSIiSJKW9xNKM2ZJ9LgyROqLreDaOe9MY7gZ3C6MVDolHLHmDFYbKw6upRksBJGHl6FlIc6bxIyn-YC1AgszOHxGAyxBfGggtD79qyqvTrk06caTZ7dz35bSD3DxkDhRcVcCQnIldjhvrmXmWDZSe0rqTNgG6FYb9vwouc3"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-8 max-w-7xl mx-auto">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-3xl font-headline font-extrabold tracking-tight text-on-surface mb-1">Group Expenses</h2>
+<p class="text-slate-500 font-medium">Manage shared finances with precision and clarity.</p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-2.5 bg-surface-container-lowest text-primary border border-outline-variant/20 rounded-xl font-bold text-sm hover:bg-surface-container transition-all">
+                        Create Group
+                    </button>
+<button class="px-6 py-2.5 bg-gradient-to-br from-primary to-primary-container text-white rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all active:scale-[0.98]">
+                        Add Group Expense
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- Active Groups Sidebar -->
+<div class="col-span-12 lg:col-span-4 space-y-4">
+<h3 class="text-sm font-bold uppercase tracking-widest text-slate-400 mb-4 px-2">Active Groups</h3>
+<!-- Group Card 1 (Active) -->
+<div class="p-5 bg-surface-container-lowest rounded-xl shadow-sm border-l-4 border-primary transition-all cursor-pointer">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">beach_access</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Goa Trip</h4>
+<p class="text-xs text-slate-500 font-medium">6 members • Created Mar 12</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300">chevron_right</span>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-0.5">Your Balance</p>
+<p class="text-xl font-headline font-extrabold text-secondary tabular-nums">+$420.50</p>
+</div>
+<div class="flex -space-x-2">
+<img alt="member" class="w-8 h-8 rounded-full border-2 border-white" data-alt="portrait of a man with friendly expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSyylbaA5dt4dqwdyunWGPwr_zzLE5K-fE5fwbi7mv3kIi8JhlYz6n51AiaRN-ZCWQJN_f0LhSNte48kP_MAjZbtZOydxlsRY7CDYQr2tX_xS0SCJuWTgJvg2cLmg0hgFNlimU9XU0UoJKaIcEwz5JoVB97xttRT-HDH5PIvbMACgPkXP0iERkjpmf5vs30sx6holgPM3JG_tpax9QdRxVfCg-7J2QKe1GWhTqxBcNr2-dci95Y-ht5AWuK-HOqPmh_pXhgQnaI_Tq"/>
+<img alt="member" class="w-8 h-8 rounded-full border-2 border-white" data-alt="portrait of a young woman smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSNKu-EsnPonOka7HGoIXQBwzNTmhr5zDPxZ-yIIahKJYiy7X_7oHGvEFlBo73PlNf2zourfuT76fC5XZ7IrpbtogkOf50ccqqlMM3YM_hFmNLMatm9Fg3Y8-qJseJOpmVDwbcGXXWKITWXp0Jh_jp1i8VZvOX2K3Jftsv0hUl1fgI2WTZL6z1z3eDf2RMaOH9_Q9gRpmYUNgGSzuAdHBsxurztZ_7WOTv3Hl7JV3_mqnsb7x0rwGHSVt3qNYmStaDzZP5PHRG6BqF"/>
+<img alt="member" class="w-8 h-8 rounded-full border-2 border-white" data-alt="headshot of a man with spectacles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXcjKodV8RmJUtPyOe9vmE7agnjYhll3UdVjEUntoWL9j3eoveP8j-VYk-ukfEEB2e9CicjAPjb0xsXfsKxetPAmNVC8rApdh3qvBufmXB4vtl6pV7P2Gt_JTYn8NDa5hzwz3vgBvgWgVQx95Eiv7ZAdkq4_T6vTFp81kMsriykeJlUkpailZoo026nexcbi4cocJtprraZwFbdLoJEYTwj24-10d_nPXBdmKjqrGM_oBnsN0D8yo6zW2uYGkeGFPLWnAtS_ndH-Lj"/>
+<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">+3</div>
+</div>
+</div>
+</div>
+<!-- Group Card 2 -->
+<div class="p-5 bg-surface-container-low hover:bg-surface-container-lowest rounded-xl transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-variant flex items-center justify-center text-slate-600">
+<span class="material-symbols-outlined">home</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Flat Mates</h4>
+<p class="text-xs text-slate-500 font-medium">3 members • Created Jan 05</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary">chevron_right</span>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-0.5">Your Balance</p>
+<p class="text-xl font-headline font-extrabold text-tertiary tabular-nums">-$1,150.00</p>
+</div>
+</div>
+</div>
+<!-- Group Card 3 -->
+<div class="p-5 bg-surface-container-low hover:bg-surface-container-lowest rounded-xl transition-all cursor-pointer group">
+<div class="flex justify-between items-start mb-4">
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-variant flex items-center justify-center text-slate-600">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Weekly Brunch</h4>
+<p class="text-xs text-slate-500 font-medium">8 members • Created Feb 22</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 group-hover:text-primary">chevron_right</span>
+</div>
+<div class="flex justify-between items-end">
+<div>
+<p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-0.5">Your Balance</p>
+<p class="text-xl font-headline font-extrabold text-slate-400 tabular-nums">Settled</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Group Detail View (Main Canvas) -->
+<div class="col-span-12 lg:col-span-8 space-y-6">
+<div class="bg-surface-container-lowest rounded-3xl p-8 shadow-sm">
+<!-- Detail Header -->
+<div class="flex justify-between items-start mb-10">
+<div class="flex gap-6 items-center">
+<div class="w-20 h-20 rounded-2xl bg-primary-container flex items-center justify-center text-white shadow-xl shadow-primary/10">
+<span class="material-symbols-outlined text-4xl" style="font-variation-settings: 'FILL' 1;">beach_access</span>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h2 class="text-3xl font-headline font-black text-on-surface">Goa Trip</h2>
+<span class="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-widest">Active</span>
+</div>
+<p class="text-slate-500 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">calendar_today</span> Mar 12 - Mar 18, 2024
+                                        <span class="mx-2 text-slate-300">•</span>
+<span class="material-symbols-outlined text-sm">location_on</span> Goa, India
+                                    </p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-3 bg-surface-container-low rounded-xl text-slate-600 hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">edit</span>
+</button>
+<button class="p-3 bg-surface-container-low rounded-xl text-slate-600 hover:bg-surface-container-high transition-all">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Balances Overview -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="p-6 bg-surface-container rounded-2xl">
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Total Group Spend</p>
+<h4 class="text-2xl font-headline font-extrabold text-on-surface tabular-nums">$4,820.00</h4>
+<div class="mt-4 flex items-center gap-2">
+<div class="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-2/3"></div>
+</div>
+<span class="text-[10px] font-bold text-slate-400">67%</span>
+</div>
+</div>
+<div class="p-6 bg-surface-container rounded-2xl">
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">You Owe</p>
+<h4 class="text-2xl font-headline font-extrabold text-tertiary tabular-nums">$125.00</h4>
+<p class="text-[10px] text-slate-400 mt-4 italic">To 2 people</p>
+</div>
+<div class="p-6 bg-surface-container rounded-2xl">
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">You Are Owed</p>
+<h4 class="text-2xl font-headline font-extrabold text-secondary tabular-nums">$545.50</h4>
+<button class="mt-4 text-[10px] text-primary font-bold uppercase tracking-widest hover:underline flex items-center gap-1">
+                                    View Details <span class="material-symbols-outlined text-xs">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Who owes Whom (Settlement) -->
+<div class="mb-10">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-sm font-bold uppercase tracking-widest text-slate-400">Debt Reconciliation</h3>
+<button class="text-xs font-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">auto_awesome</span> Optimize Debts
+                                </button>
+</div>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-4 bg-surface rounded-xl border border-outline-variant/5">
+<div class="flex items-center gap-4">
+<div class="flex items-center -space-x-2">
+<img alt="member" class="w-10 h-10 rounded-full border-2 border-white shadow-sm" data-alt="portrait of a bearded man with a confident look" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdkJdlrkizhymrEKFIza8kU_5fdPUpCPPFlYcJs2n2NvQQN9PRtT9lifp0Rw1cr8QheKBMipD3ESfe5YiX0mqc8tp5CDFgX3bsURkZTLtcpXqgyxFhaWnXOL6is5mc_GbNpUWyhns8lkN6SaPAyx11h1k8vLZQcbeLhZx1Ez77D5ltzApyf8mR5qdcdg9_C46zltxmWLIvX0EwQ-efaIkztTdN72xgHbbPAiVLIe-tNZTgQCJAMMy_7US49ilkKW-lmis0o-AOCs7q"/>
+<span class="material-symbols-outlined text-slate-300 text-lg">trending_flat</span>
+<img alt="you" class="w-10 h-10 rounded-full border-2 border-white shadow-sm" data-alt="portrait of Alex Thompson" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFbFQj25PJY6PU15UU-AMTZMiNJ8wKRIdtYfw8Zu_VlJi-U5oNcpCoiVoLif8EdZ1Ua-g_J-NKClh_OkcVVfbC4vTon1V1PbZkumbonYR76E5kfvPVjYshT4alPPd8mzBkUnq9uDMTnLEp9gFBqbzKBw_REGZHrwiZWgdg2y_PjmGaI5K92u3zCuBCPczLG0xdQ9vJNHwcPld-Qrmr4M1Gnzfq7eacNhBAYllEVPKCV6LlHhnVKjlj322DUSCgC2Z7G1yzw78pgE7G"/>
+</div>
+<p class="text-sm font-medium text-on-surface">
+<span class="font-bold">Rahul S.</span> owes <span class="font-bold">You</span>
+</p>
+</div>
+<div class="flex items-center gap-6">
+<span class="text-lg font-headline font-extrabold text-secondary tabular-nums">$320.00</span>
+<button class="px-4 py-1.5 bg-secondary/10 text-secondary rounded-full text-xs font-bold hover:bg-secondary hover:text-white transition-all">Settle Up</button>
+</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface rounded-xl border border-outline-variant/5">
+<div class="flex items-center gap-4">
+<div class="flex items-center -space-x-2">
+<img alt="you" class="w-10 h-10 rounded-full border-2 border-white shadow-sm" data-alt="portrait of Alex Thompson" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx9g9ggZ5SucO_67vh_gW6igaLXmBPrSEf0bDDduEY1D-I6chcehC4g-fRS3qc2UNlDjV3qg9XsKjdTS4PmOvnekTp_aFSqXqrpPgNDusIkZ4LZXD-EsoMaaOQqJQ0xBRN6s2lrrOILiPhgGTP5OahcXTqc1xcJ2X1rqzQeCuanHz7CDiG09dqffcyISg6yT5NBqDOLg3pVcaagnAO9gUCilAivE5EEvAjy7JcHIpzXlrN82PWehbnCKo2tYndfxCKNAkeyXWLVovF"/>
+<span class="material-symbols-outlined text-slate-300 text-lg">trending_flat</span>
+<img alt="member" class="w-10 h-10 rounded-full border-2 border-white shadow-sm" data-alt="portrait of a blonde woman smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-jRu2xsVAvJPUuAci4uS-LeT-A73dIdSkKfW-c0wV-5V6bxa3lWth7l0jiP4DB8_2oGC5-Ok5eHrycqgklT01wLBgupYrIMjaidz4sjnG3cDBC4gFgNSbBX3bj3C89obaJP0iTW-ern1I6oiQfXaXhFk3D1jgbfeWgvjyYPD7FE1ehWtMcIPcWaxHEJI3VMSs0xtGi6ruDRVFnd-2vtnmmT0-qKBL7euC05KmyEbzxbhlMAPLnP31DHh_hzQKv56FGuwAc9iyTZ_p"/>
+</div>
+<p class="text-sm font-medium text-on-surface">
+<span class="font-bold">You</span> owe <span class="font-bold">Sarah K.</span>
+</p>
+</div>
+<div class="flex items-center gap-6">
+<span class="text-lg font-headline font-extrabold text-tertiary tabular-nums">$85.00</span>
+<button class="px-4 py-1.5 bg-primary text-white rounded-full text-xs font-bold shadow-md shadow-primary/10 hover:shadow-lg transition-all">Pay Now</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Shared Expenses List -->
+<div>
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-sm font-bold uppercase tracking-widest text-slate-400">Expense Journal</h3>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 bg-surface-container-low rounded-lg text-xs font-bold text-slate-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">filter_alt</span> Filter
+                                    </button>
+<button class="px-3 py-1.5 bg-surface-container-low rounded-lg text-xs font-bold text-slate-600 flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">download</span> CSV
+                                    </button>
+</div>
+</div>
+<div class="space-y-1">
+<!-- Transaction Row 1 -->
+<div class="group flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors rounded-xl cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">restaurant</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Seafood Dinner at Brittos</p>
+<p class="text-[10px] text-slate-500 font-medium">Paid by <span class="text-primary font-bold">You</span> • Split Equally</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-on-surface tabular-nums">$240.00</p>
+<p class="text-[10px] text-secondary font-bold tabular-nums">+$200.00</p>
+</div>
+</div>
+<!-- Transaction Row 2 -->
+<div class="group flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors rounded-xl cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">directions_car</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Airport Taxi (Cabana to Airport)</p>
+<p class="text-[10px] text-slate-500 font-medium">Paid by <span class="text-on-surface font-bold">Sarah K.</span> • Split by %</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-on-surface tabular-nums">$60.00</p>
+<p class="text-[10px] text-tertiary font-bold tabular-nums">-$10.00</p>
+</div>
+</div>
+<!-- Transaction Row 3 -->
+<div class="group flex items-center justify-between p-4 hover:bg-surface-container-low transition-colors rounded-xl cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">hotel</span>
+</div>
+<div>
+<p class="text-sm font-bold text-on-surface">Resort Stay Deposit</p>
+<p class="text-[10px] text-slate-500 font-medium">Paid by <span class="text-on-surface font-bold">Rahul S.</span> • Split Equally</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-on-surface tabular-nums">$1,200.00</p>
+<p class="text-[10px] text-tertiary font-bold tabular-nums">-$200.00</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Add Expense Modal (Overlay Concept) -->
+<div class="fixed inset-0 bg-on-surface/40 backdrop-blur-sm z-50 flex items-center justify-center p-6 hidden">
+<!-- For demonstration, hidden. To show, remove hidden and add active styles. -->
+<div class="bg-surface-container-lowest w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden">
+<div class="p-6 border-b border-slate-100 flex justify-between items-center">
+<h3 class="text-xl font-headline font-black text-on-surface">New Group Expense</h3>
+<button class="p-2 text-slate-400 hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="p-8 space-y-6">
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Description</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="What was it for?" type="text"/>
+</div>
+<div class="flex gap-4">
+<div class="flex-1 space-y-2">
+<label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Amount</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">$</span>
+<input class="w-full bg-surface-container-low border-none rounded-xl p-4 pl-8 text-lg font-extrabold tabular-nums focus:ring-2 focus:ring-primary/20 transition-all" placeholder="0.00" type="number"/>
+</div>
+</div>
+<div class="flex-1 space-y-2">
+<label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date</label>
+<input class="w-full bg-surface-container-low border-none rounded-xl p-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all" type="date"/>
+</div>
+</div>
+<div class="space-y-4">
+<label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Split Method</label>
+<div class="grid grid-cols-3 gap-2">
+<button class="py-3 bg-primary text-white rounded-xl text-xs font-bold border-2 border-primary transition-all">Equally</button>
+<button class="py-3 bg-white text-slate-600 rounded-xl text-xs font-bold border-2 border-slate-100 hover:border-slate-200 transition-all">Percentage</button>
+<button class="py-3 bg-white text-slate-600 rounded-xl text-xs font-bold border-2 border-slate-100 hover:border-slate-200 transition-all">Exact</button>
+</div>
+</div>
+<div class="pt-4">
+<button class="w-full bg-gradient-to-br from-primary to-primary-container text-white py-4 rounded-2xl font-black shadow-xl shadow-primary/20 hover:scale-[1.01] transition-all active:scale-[0.98]">
+                            Post Expense
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB Concept for Mobile -->
+<button class="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-primary text-white rounded-full shadow-2xl flex items-center justify-center transition-transform active:scale-90 z-50">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</body></html>

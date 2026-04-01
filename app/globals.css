@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Sora:wght@400;500;600;700;800&display=swap");
+
+@theme inline {
+  /* Fonts */
+  --font-display: "Sora", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Core semantic colors - these map to bg-*, text-*, border-* utilities */
+  --color-background: #f7f9fb;
+  --color-surface: #ffffff;
+  --color-elevated: #f2f4f6;
+  --color-highlight: #e6e8ea;
+
+  --color-primary: #003178;
+  --color-primary-container: #0d47a1;
+  --color-secondary: #006b5f;
+  --color-tertiary: #71000c;
+
+  --color-text-primary: #111827;
+  --color-text-secondary: #475569;
+  --color-text-muted: #6b7280;
+
+  --color-border: #c3c6d4;
+  --color-border-subtle: #d8dadc;
+
+  /* Accent colors - accessed via bg-accent-* */
+  --color-accent-primary: #003178;
+  --color-accent-primary-container: #0d47a1;
+  --color-accent-secondary: #006b5f;
+  --color-accent-success: #34d399;
+  --color-accent-danger: #f87171;
+  --color-accent-warning: #fbbf24;
+  --color-accent-purple: #a78bfa;
+
+  /* Chart colors - accessed via bg-chart-* */
+  --color-chart-1: #4f8ef7;
+  --color-chart-2: #34d399;
+  --color-chart-3: #fbbf24;
+  --color-chart-4: #f87171;
+  --color-chart-5: #a78bfa;
+  --color-chart-6: #38bdf8;
+  --color-chart-7: #fb7185;
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+::selection {
+  background: rgba(0, 49, 120, 0.16);
+  color: #001945;
+}
