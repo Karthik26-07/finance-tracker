@@ -1,4 +1,5 @@
 import { pgTable, uuid, varchar, numeric, boolean, timestamp, pgEnum } from 'drizzle-orm/pg-core'
+import { type InferSelectModel, type InferInsertModel } from 'drizzle-orm'
 import { users } from './users'
 
 export const accountTypeEnum = pgEnum('account_type', [
@@ -18,3 +19,6 @@ export const accounts = pgTable('accounts', {
   createdAt:      timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt:      timestamp('updated_at', { withTimezone: true }).defaultNow(),
 })
+
+export type Account = InferSelectModel<typeof accounts>
+export type NewAccount = InferInsertModel<typeof accounts>

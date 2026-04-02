@@ -65,9 +65,9 @@ export async function register(formData: FormData): Promise<ErrorResponse | { su
           password: safePassword,
           redirect: false,
         })
-      } catch (signInError: any) {
+      } catch (signInError: unknown) {
         await logger.auth('REGISTER', { email: safeEmail, status: 'created_but_signin_failed' })
-        if (signInError?.code === 'credentials') {
+        if (signInError instanceof Error && 'code' in signInError && (signInError as Record<string, unknown>).code === 'credentials') {
           throw new AuthError('SIGNIN_AFTER_REGISTER_FAILED', 'Failed to sign in after registration')
         }
         throw signInError
@@ -100,8 +100,8 @@ export async function login(formData: FormData): Promise<ErrorResponse | { succe
           password: parsed.data.password,
           redirect: false,
         })
-      } catch (signInError: any) {
-        if (signInError?.code === 'credentials') {
+      } catch (signInError: unknown) {
+        if (signInError instanceof Error && 'code' in signInError && (signInError as Record<string, unknown>).code === 'credentials') {
           await logger.auth('LOGIN_FAILED', { email: parsed.data.email, reason: 'invalid_credentials' })
           throw new AuthError('INVALID_CREDENTIALS', 'Invalid email or password')
         }

@@ -1,4 +1,5 @@
 import { pgTable, uuid, varchar, numeric, text, boolean, date, time, timestamp, index, pgEnum } from 'drizzle-orm/pg-core'
+import { type InferSelectModel, type InferInsertModel } from 'drizzle-orm'
 import { users } from './users'
 import { accounts } from './accounts'
 import { categories } from './categories'
@@ -29,3 +30,6 @@ export const transactions = pgTable('transactions', {
   index('idx_transactions_account').on(table.accountId),
   index('idx_transactions_category').on(table.categoryId),
 ])
+
+export type Transaction = InferSelectModel<typeof transactions>
+export type NewTransaction = InferInsertModel<typeof transactions>

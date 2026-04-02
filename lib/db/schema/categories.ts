@@ -1,4 +1,5 @@
 import { pgTable, uuid, varchar, boolean, timestamp, pgEnum, AnyPgColumn } from 'drizzle-orm/pg-core'
+import { type InferSelectModel, type InferInsertModel } from 'drizzle-orm'
 import { users } from './users'
 
 export const categoryTypeEnum = pgEnum('category_type', ['income', 'expense', 'both'])
@@ -14,3 +15,6 @@ export const categories = pgTable('categories', {
   isSystem: boolean('is_system').default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 })
+
+export type Category = InferSelectModel<typeof categories>
+export type NewCategory = InferInsertModel<typeof categories>
