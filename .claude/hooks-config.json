@@ -1,0 +1,290 @@
+{
+  "claude_code": {
+    "project_name": "FinTrack Home Finance Tracker",
+    "version": "1.0",
+    "standards_framework": "Precision Architect Financial Editorial",
+    "compliance": [
+      "SOC 2 Type II",
+      "PCI DSS",
+      "GDPR"
+    ],
+    "automatic_enforcement": {
+      "enabled": true,
+      "description": "Automatic checks before code generation and file edits"
+    },
+    "enforcement_rules": {
+      "code_generation": {
+        "description": "Applied whenever Claude generates or modifies code",
+        "checks": [
+          {
+            "id": "no_console_log",
+            "pattern": "console\\.(log|debug|info)",
+            "severity": "error",
+            "message": "console.log() not allowed. Use logger.* instead",
+            "docs": ".claude/STANDARDS.md#logging"
+          },
+          {
+            "id": "no_commented_code",
+            "pattern": "//\\s*[a-zA-Z].*=.*|/\\*.*\\*/",
+            "severity": "error",
+            "message": "Commented code blocks must be removed before commit",
+            "docs": ".claude/COMPLETION_CHECKLIST.md"
+          },
+          {
+            "id": "typescript_strict",
+            "pattern": "as (?!const)",
+            "severity": "warn",
+            "message": "Type casting without validation. Use Zod schema instead",
+            "docs": ".claude/STANDARDS.md#validation"
+          },
+          {
+            "id": "arbitrary_colors",
+            "pattern": "#[0-9A-Fa-f]{6}|rgb\\(|rgba\\(",
+            "severity": "warn",
+            "message": "Use Tailwind color classes (bg-primary, text-secondary) instead of hex colors",
+            "docs": ".claude/UI-UX.md#colors"
+          },
+          {
+            "id": "hardcoded_spacing",
+            "pattern": "(?:gap|padding|margin|width|height)\\s*[=:]\\s*(?!(?:1|2|4|6|8|12|16|24|32|48))",
+            "severity": "warn",
+            "message": "Spacing must be on 4px grid (p-1, gap-4, etc). No arbitrary values",
+            "docs": ".claude/UI-UX.md#spacing"
+          },
+          {
+            "id": "missing_auth_check",
+            "pattern": "export async function.*server.*\\{",
+            "severity": "info",
+            "message": "Protected server actions should verify session with auth(). Check if needed",
+            "docs": ".claude/SECURITY.md#auth"
+          },
+          {
+            "id": "password_in_logs",
+            "pattern": "logger\\..*password|console\\..*password",
+            "severity": "error",
+            "message": "NEVER log passwords or sensitive data",
+            "docs": ".claude/SECURITY.md#logs"
+          },
+          {
+            "id": "generic_error_messages",
+            "pattern": "return \\{ error: error\\.message",
+            "severity": "error",
+            "message": "Use generic error messages to client, log full details server-side",
+            "docs": ".claude/SECURITY.md#errors"
+          }
+        ]
+      },
+      "file_patterns": {
+        "description": "Enforcement rules for specific file types",
+        "server_actions": {
+          "pattern": "actions/.*\\.ts$",
+          "required": [
+            "Use 'use server' directive at top",
+            "Validate inputs with Zod schema",
+            "Use executeServerAction() wrapper",
+            "Log security events",
+            "Return consistent action response format"
+          ],
+          "docs": ".claude/STANDARDS.md#server-actions"
+        },
+        "components": {
+          "pattern": "components/.*\\.tsx$",
+          "required": [
+            "Use design system colors (bg-primary, text-secondary)",
+            "Use proper typography (font-display, font-body)",
+            "Spacing on 4px grid",
+            "No 1px borders (use bg shifts)",
+            "Semantic HTML & ARIA labels"
+          ],
+          "docs": ".claude/UI-UX.md"
+        },
+        "auth": {
+          "pattern": "lib/auth\\.ts$|actions/auth\\.ts$",
+          "required": [
+            "Never return password hashes",
+            "Hash passwords with bcrypt (12 rounds)",
+            "Use JWT strategy",
+            "Log all auth events",
+            "Validate inputs thoroughly"
+          ],
+          "docs": ".claude/SECURITY.md#authentication"
+        }
+      },
+      "pre_commit_hooks": {
+        "enabled": true,
+        "checks": [
+          {
+            "id": "no_console_log",
+            "command": "grep -r \"console\\.log\" src/ actions/ lib/",
+            "fail_message": "❌ console.log() found. Remove before commit",
+            "docs": ".claude/STANDARDS.md"
+          },
+          {
+            "id": "lint_check",
+            "command": "npm run lint",
+            "fail_message": "❌ ESLint errors. Fix with: npm run lint --fix",
+            "docs": "CLAUDE.md#commands"
+          },
+          {
+            "id": "type_check",
+            "command": "npm run type-check",
+            "fail_message": "❌ TypeScript errors. Review and fix",
+            "docs": ".claude/STANDARDS.md#typescript"
+          },
+          {
+            "id": "sensitive_data_check",
+            "command": "grep -r \"AUTH_SECRET\\|DATABASE_URL\\|password =\\|token =\" src/ actions/ --exclude-dir=.env.local",
+            "fail_message": "⚠️  Possible hardcoded secrets detected. Use environment variables",
+            "docs": ".claude/SECURITY.md#secrets"
+          },
+          {
+            "id": "git_status_check",
+            "command": "git status --porcelain | grep -v '^M ' | grep -v '^A ' | head -1",
+            "fail_message": "⚠️  Unintended files in staging. Check: npm run lint --fix, don't commit node_modules/.env.local, .next",
+            "docs": ".claude/COMPLETION_CHECKLIST.md"
+          }
+        ]
+      },
+      "on_code_review": {
+        "security_checklist": {
+          "enabled": true,
+          "auto_check": [
+            "Input validation (getFormDataString used)",
+            "Auth checks (auth() called)",
+            "User ID verification (matches session)",
+            "No passwords in responses",
+            "No tokens in logs",
+            "Error messages generic to client",
+            "Sensitive data protection"
+          ],
+          "docs": ".claude/SECURITY.md"
+        },
+        "ui_checklist": {
+          "enabled": true,
+          "auto_check": [
+            "Design system colors used",
+            "Typography correct (Sora/DM Sans/JetBrains Mono)",
+            "Spacing on 4px grid",
+            "No 1px borders",
+            "Responsive (mobile/tablet/desktop)",
+            "Accessibility (labels, semantic HTML, ARIA)",
+            "Currency has tabular-nums"
+          ],
+          "docs": ".claude/UI-UX.md"
+        },
+        "code_quality_checklist": {
+          "enabled": true,
+          "auto_check": [
+            "No console.log or debug statements",
+            "No commented code",
+            "TypeScript strict (no 'any')",
+            "No unused imports",
+            "Proper error handling (custom error types)",
+            "Zod validation for inputs",
+            "Database queries use Drizzle ORM"
+          ],
+          "docs": ".claude/STANDARDS.md"
+        }
+      },
+      "standard_documents": {
+        "standards": ".claude/STANDARDS.md",
+        "security": ".claude/SECURITY.md",
+        "ui_ux": ".claude/UI-UX.md",
+        "completion_checklist": ".claude/COMPLETION_CHECKLIST.md",
+        "agents": ".claude/AGENTS.md",
+        "project_instructions": "CLAUDE.md",
+        "error_handling": "docs/GLOBAL_ERROR_HANDLING.md"
+      },
+      "response_templates": {
+        "standards_violation": "This violates {{standard}}. See {{docs}} for guidance. Update to: {{suggestion}}",
+        "security_issue": "🔒 SECURITY ISSUE: {{issue}}. See {{docs}}. Fix: {{fix}}",
+        "ui_violation": "🎨 UI/UX Issue: {{issue}}. See {{docs}}. Update: {{suggestion}}",
+        "code_quality": "📋 Code Quality: {{issue}}. See {{docs}}. Improvement: {{suggestion}}"
+      },
+      "memory_and_context": {
+        "auto_memory_path": "C:\\Users\\Dell\\.claude\\projects\\d--home-finance-tracker\\memory\\",
+        "memory_files": {
+          "MEMORY.md": "Main project knowledge (auto-loaded, keep < 200 lines)",
+          "architecture.md": "Module dependencies, data structures",
+          "patterns.md": "Recurring patterns discovered",
+          "debugging.md": "Common issues and solutions"
+        },
+        "update_frequency": "After each significant discovery or pattern confirmation"
+      },
+      "custom_commands": {
+        "enabled": true,
+        "commands": [
+          {
+            "name": "/standards-check",
+            "description": "Run Standards Enforcer on current code",
+            "action": "Review against .claude/STANDARDS.md and show violations"
+          },
+          {
+            "name": "/security-review",
+            "description": "Run Security Auditor on auth/security code",
+            "action": "Deep security review per .claude/SECURITY.md"
+          },
+          {
+            "name": "/ui-review",
+            "description": "Run UI/UX Validator on component code",
+            "action": "Validate design system compliance per .claude/UI-UX.md"
+          },
+          {
+            "name": "/error-review",
+            "description": "Run Error Handler Validator",
+            "action": "Check error handling patterns per docs/GLOBAL_ERROR_HANDLING.md"
+          },
+          {
+            "name": "/ready-for-merge",
+            "description": "Run Completion Reviewer checklist",
+            "action": "Full verification from .claude/COMPLETION_CHECKLIST.md before merge"
+          },
+          {
+            "name": "/checklist",
+            "description": "Show full development checklist",
+            "action": "Display .claude/COMPLETION_CHECKLIST.md with checkboxes"
+          }
+        ]
+      },
+      "module_phases": {
+        "M1": {
+          "name": "Auth & User Management",
+          "status": "🟢 In Progress",
+          "standards": [
+            "Input validation (getFormDataString)",
+            "Security logging (logger.auth, logger.security)",
+            "Error handling (AuthError, ValidationError)",
+            "Password hashing (bcrypt 12 rounds)",
+            "JWT session management"
+          ],
+          "required_checks": [
+            "security_checklist",
+            "code_quality_checklist"
+          ],
+          "docs": ".claude/SECURITY.md#m1"
+        },
+        "M2": {
+          "name": "Accounts",
+          "status": "⚪ Pending",
+          "standards": "TBD - See M1 template",
+          "required_checks": [
+            "security_checklist",
+            "code_quality_checklist",
+            "ui_checklist"
+          ]
+        },
+        "M3-M10": {
+          "name": "Future Modules",
+          "status": "⚪ Pending",
+          "template": "Use M1 as template for each new module"
+        }
+      },
+      "enforcement_levels": {
+        "ERROR": "Must fix before merge (blocks PR)",
+        "WARN": "Should fix (review before merge)",
+        "INFO": "Consider for improvement (non-blocking)",
+        "SUGGESTION": "Best practice recommendation"
+      }
+    }
+  }
+}

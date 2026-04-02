@@ -7,188 +7,258 @@ import { registerSchema, loginSchema, updateProfileSchema, changePasswordSchema 
 import bcrypt from 'bcryptjs'
 import { eq } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+import { logger } from '@/lib/logger'
+import { executeServerAction, safeAction } from '@/lib/server-action-middleware'
+import {
+  AuthError,
+  ValidationError,
+  ErrorResponse,
+  getFormDataString,
+} from '@/lib/errors'
 
-export async function register(formData: FormData) {
-  const name = formData.get('name') as string
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+/**
+ * Register new user
+ * Global error handling - no try-catch needed
+ */
+export async function register(formData: FormData): Promise<ErrorResponse | { success: true }> {
+  return executeServerAction(
+    async () => {
+      const name = getFormDataString(formData, 'name')
+      const email = getFormDataString(formData, 'email')
+      const password = getFormDataString(formData, 'password')
 
-  const parsed = registerSchema.safeParse({ name, email, password })
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid registration input' }
-  }
+      const parsed = registerSchema.safeParse({ name, email, password })
+      if (!parsed.success) {
+        throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid registration input')
+      }
 
-  const { name: safeName, email: safeEmail, password: safePassword } = parsed.data
+      const { name: safeName, email: safeEmail, password: safePassword } = parsed.data
 
-  // Check if user already exists
-  const [existing] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, safeEmail))
-    .limit(1)
+      // Check if user already exists
+      const [existing] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, safeEmail))
+        .limit(1)
 
-  if (existing) {
-    return { error: 'An account with this email already exists' }
-  }
+      if (existing) {
+        await logger.security('REGISTER_ATTEMPT_DUPLICATE_EMAIL', { email: safeEmail }, 'warn')
+        throw new AuthError('EMAIL_EXISTS', 'An account with this email already exists')
+      }
 
-  // Hash password
-  const passwordHash = await bcrypt.hash(safePassword, 12)
+      // Hash password
+      const passwordHash = await bcrypt.hash(safePassword, 12)
 
-  // Create user
-  await db.insert(users).values({
-    name: safeName,
-    email: safeEmail,
-    passwordHash,
-  })
+      // Create user
+      await db.insert(users).values({
+        name: safeName,
+        email: safeEmail,
+        passwordHash,
+      })
 
-  // Sign in the user
-  try {
-    await signIn('credentials', {
-      email: safeEmail,
-      password: safePassword,
-      redirect: false,
-    })
-  } catch (error: any) {
-    if (error?.code === 'credentials') {
-      return { error: 'Failed to sign in after registration' }
-    }
-    throw error
-  }
+      await logger.auth('REGISTER', { email: safeEmail, name: safeName })
 
-  redirect('/dashboard')
+      // Sign in the user
+      try {
+        await signIn('credentials', {
+          email: safeEmail,
+          password: safePassword,
+          redirect: false,
+        })
+      } catch (signInError: any) {
+        await logger.auth('REGISTER', { email: safeEmail, status: 'created_but_signin_failed' })
+        if (signInError?.code === 'credentials') {
+          throw new AuthError('SIGNIN_AFTER_REGISTER_FAILED', 'Failed to sign in after registration')
+        }
+        throw signInError
+      }
+
+      return { success: true }
+    },
+    { action: 'register' }
+  )
 }
 
-export async function login(formData: FormData) {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
+/**
+ * Login user
+ * Global error handling - no try-catch needed
+ */
+export async function login(formData: FormData): Promise<ErrorResponse | { success: true }> {
+  return executeServerAction(
+    async () => {
+      const email = getFormDataString(formData, 'email')
+      const password = getFormDataString(formData, 'password')
 
-  const parsed = loginSchema.safeParse({ email, password })
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid login input' }
-  }
+      const parsed = loginSchema.safeParse({ email, password })
+      if (!parsed.success) {
+        throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid login input')
+      }
 
-  try {
-    await signIn('credentials', {
-      email: parsed.data.email,
-      password: parsed.data.password,
-      redirect: false,
-    })
-  } catch (error: any) {
-    if (error?.code === 'credentials') {
-      return { error: 'Invalid email or password' }
-    }
-    throw error
-  }
+      try {
+        await signIn('credentials', {
+          email: parsed.data.email,
+          password: parsed.data.password,
+          redirect: false,
+        })
+      } catch (signInError: any) {
+        if (signInError?.code === 'credentials') {
+          await logger.auth('LOGIN_FAILED', { email: parsed.data.email, reason: 'invalid_credentials' })
+          throw new AuthError('INVALID_CREDENTIALS', 'Invalid email or password')
+        }
+        throw signInError
+      }
 
-  redirect('/dashboard')
+      await logger.auth('LOGIN_SUCCESS', { email: parsed.data.email })
+      return { success: true }
+    },
+    { action: 'login' }
+  )
 }
 
-export async function logout() {
-  await signOut({ redirect: false })
-  redirect('/login')
+/**
+ * Logout user
+ * Global error handling - no try-catch needed
+ */
+export async function logout(): Promise<ErrorResponse | { success: true }> {
+  return executeServerAction(
+    async () => {
+      const session = await auth()
+      await logger.auth('LOGOUT', { userId: session?.user?.id })
+      await signOut({ redirect: false })
+      return { success: true }
+    },
+    { action: 'logout' }
+  )
 }
 
-export async function updateProfile(formData: FormData) {
-  const session = await auth()
-  if (!session) {
-    return { error: 'Unauthorized' }
-  }
+/**
+ * Update user profile
+ * Global error handling - no try-catch needed
+ */
+export async function updateProfile(formData: FormData): Promise<ErrorResponse | { success: true }> {
+  return executeServerAction(
+    async () => {
+      const session = await auth()
+      if (!session?.user?.id) {
+        throw new AuthError('UNAUTHORIZED', 'Please log in to update your profile')
+      }
 
-  const name = formData.get('name') as string
-  const currency = formData.get('currency') as string
-  const timezone = formData.get('timezone') as string
+      const name = getFormDataString(formData, 'name')
+      const currency = getFormDataString(formData, 'currency')
+      const timezone = getFormDataString(formData, 'timezone')
 
-  const parsed = updateProfileSchema.safeParse({ name, currency, timezone })
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid profile data' }
-  }
+      const parsed = updateProfileSchema.safeParse({ name, currency, timezone })
+      if (!parsed.success) {
+        throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid profile data')
+      }
 
-  const userId = session.user?.id
-  if (!userId) {
-    return { error: 'Unauthorized' }
-  }
+      await db
+        .update(users)
+        .set({
+          name: parsed.data.name,
+          currency: parsed.data.currency,
+          timezone: parsed.data.timezone,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, session.user.id))
 
-  await db
-    .update(users)
-    .set({
-      name: parsed.data.name,
-      currency: parsed.data.currency,
-      timezone: parsed.data.timezone,
-      updatedAt: new Date(),
-    })
-    .where(eq(users.id, userId))
-
-  revalidatePath('/settings/profile')
-  return { success: true }
+      await logger.auth('PROFILE_UPDATE', { userId: session.user.id })
+      revalidatePath('/settings/profile')
+      return { success: true }
+    },
+    { action: 'updateProfile' }
+  )
 }
 
-export async function changePassword(formData: FormData) {
-  const session = await auth()
-  if (!session) {
-    return { error: 'Unauthorized' }
-  }
+/**
+ * Change user password
+ * Global error handling - no try-catch needed
+ */
+export async function changePassword(formData: FormData): Promise<ErrorResponse | { success: true }> {
+  return executeServerAction(
+    async () => {
+      const session = await auth()
+      if (!session?.user?.id) {
+        throw new AuthError('UNAUTHORIZED', 'Please log in to change your password')
+      }
 
-  const oldPassword = formData.get('oldPassword') as string
-  const newPassword = formData.get('newPassword') as string
+      const oldPassword = getFormDataString(formData, 'oldPassword')
+      const newPassword = getFormDataString(formData, 'newPassword')
 
-  const parsed = changePasswordSchema.safeParse({ oldPassword, newPassword })
-  if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid password data' }
-  }
+      const parsed = changePasswordSchema.safeParse({ oldPassword, newPassword })
+      if (!parsed.success) {
+        throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid password data')
+      }
 
-  const userId = session.user?.id
-  if (!userId) {
-    return { error: 'Unauthorized' }
-  }
+      // Get current user
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, session.user.id))
+        .limit(1)
 
-  // Get current user
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1)
+      if (!user) {
+        await logger.error(new Error('User not found in session'), {
+          action: 'changePassword',
+          userId: session.user.id,
+        })
+        throw new AuthError('USER_NOT_FOUND', 'User account not found')
+      }
 
-  if (!user) {
-    return { error: 'User not found' }
-  }
+      // Verify old password
+      const isValid = await bcrypt.compare(oldPassword, user.passwordHash)
+      if (!isValid) {
+        await logger.security('PASSWORD_CHANGE_FAILED', {
+          userId: session.user.id,
+          reason: 'invalid_old_password',
+        }, 'warn')
+        throw new AuthError('INVALID_PASSWORD', 'Current password is incorrect')
+      }
 
-  // Verify old password
-  const isValid = await bcrypt.compare(oldPassword, user.passwordHash)
-  if (!isValid) {
-    return { error: 'Current password is incorrect' }
-  }
+      // Hash new password
+      const newPasswordHash = await bcrypt.hash(newPassword, 12)
 
-  // Hash new password
-  const newPasswordHash = await bcrypt.hash(newPassword, 12)
+      // Update password
+      await db
+        .update(users)
+        .set({
+          passwordHash: newPasswordHash,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, session.user.id))
 
-  // Update password
-  await db
-    .update(users)
-    .set({
-      passwordHash: newPasswordHash,
-      updatedAt: new Date(),
-    })
-    .where(eq(users.id, userId))
-
-  revalidatePath('/settings/profile')
-  return { success: true }
+      await logger.auth('PASSWORD_CHANGE', { userId: session.user.id })
+      revalidatePath('/settings/profile')
+      return { success: true }
+    },
+    { action: 'changePassword' }
+  )
 }
 
-export async function deleteAccount() {
-  const session = await auth()
-  if (!session) {
-    return { error: 'Unauthorized' }
-  }
+/**
+ * Delete user account
+ * Global error handling - no try-catch needed
+ */
+export async function deleteAccount(): Promise<ErrorResponse | { success: true }> {
+  return executeServerAction(
+    async () => {
+      const session = await auth()
+      if (!session?.user?.id) {
+        throw new AuthError('UNAUTHORIZED', 'Please log in to delete your account')
+      }
 
-  const userId = session.user?.id
-  if (!userId) {
-    return { error: 'Unauthorized' }
-  }
+      const userId = session.user.id
 
-  // Delete user (cascade will handle related data)
-  await db.delete(users).where(eq(users.id, userId))
+      // Log deletion event before deletion
+      await logger.auth('ACCOUNT_DELETE', { userId })
 
-  await signOut({ redirect: false })
-  redirect('/login')
+      // Delete user (cascade will handle related data)
+      await db.delete(users).where(eq(users.id, userId))
+
+      await logger.auth('ACCOUNT_DELETE', { userId, status: 'completed' })
+      await signOut({ redirect: false })
+      return { success: true }
+    },
+    { action: 'deleteAccount' }
+  )
 }

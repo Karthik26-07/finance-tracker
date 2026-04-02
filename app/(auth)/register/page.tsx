@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
@@ -10,6 +11,8 @@ import Link from "next/link";
 export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
 
   const {
     register: registerForm,
@@ -30,10 +33,13 @@ export default function RegisterPage() {
 
     const result = await register(formData);
 
-    if (result?.error) {
+    if (result && "error" in result) {
       setError(result.error);
       setLoading(false);
+      return;
     }
+
+    router.push("/dashboard");
   };
 
   return (
