@@ -14,13 +14,11 @@ const transport =
       },
     }
 
-const pinoLogger = pino(
-  {
-    level: process.env.LOG_LEVEL || 'info',
-    timestamp: pino.stdTimeFunctions.isoTime,
-  },
-  transport ? undefined : pino.destination()
-)
+const pinoLogger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  timestamp: pino.stdTimeFunctions.isoTime,
+  ...(typeof window === 'undefined' && process.env.NEXT_RUNTIME === 'nodejs' && transport ? { transport } : {})
+})
 
 /**
  * Extract request context for logging (safe for both server and client)

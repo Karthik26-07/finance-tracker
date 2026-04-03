@@ -4,13 +4,13 @@
 
 | Module | Name | Status | Priority |
 |--------|------|--------|----------|
-| M1 | Auth & User Management | In Progress | P0 |
-| M2 | Accounts & Wallets | Pending | P0 |
-| M3 | Transactions (Core) | Pending | P0 |
-| M4 | Categories & Tags | Pending | P1 |
-| M5 | Dashboard & Analytics | Pending | P1 |
-| M6 | Reports | Pending | P1 |
-| M7 | Group Expenses | Pending | P2 |
+| M1 | Auth & User Management | Implemented | P0 |
+| M2 | Accounts & Wallets | Implemented | P0 |
+| M3 | Transactions (Core) | Implemented | P0 |
+| M4 | Categories & Tags | Implemented | P1 |
+| M5 | Dashboard & Analytics | In Progress | P1 |
+| M6 | Reports | Implemented | P1 |
+| M7 | Group Expenses | Implemented | P2 |
 | M8 | Recurring Deductions | Pending | P2 |
 | M9 | Budgets | Pending | P2 |
 | M10 | Settings & Export | Pending | P3 |

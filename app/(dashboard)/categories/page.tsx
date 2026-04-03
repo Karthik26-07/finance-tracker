@@ -13,7 +13,7 @@ export default async function CategoriesPage() {
   const categories = await getCategories(session.user.id)
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 py-6">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500 py-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-text-primary tracking-tighter font-display">Categories</h1>

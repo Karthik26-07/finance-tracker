@@ -44,8 +44,8 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
-      <div className="mx-auto grid max-w-[1040px] gap-8 xl:grid-cols-[0.95fr_1.05fr]">
-        <section className="hidden rounded-[32px] bg-gradient-to-br from-primary to-primary-container p-10 text-white shadow-ambient xl:block">
+      <div className="mx-auto grid max-w-275 gap-8 xl:grid-cols-[0.95fr_1.05fr]">
+        <section className="hidden rounded-4xl bg-linear-to-br from-primary to-primary-container p-10 text-white shadow-ambient xl:block">
           <div className="space-y-10">
             <div className="inline-flex items-center gap-3 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em]">
               FinTrack
@@ -74,7 +74,7 @@ export default function RegisterPage() {
           </div>
         </section>
 
-        <div className="overflow-hidden rounded-[32px] border border-border bg-surface shadow-ambient">
+        <div className="overflow-hidden rounded-4xl border border-border bg-surface shadow-ambient">
           <div className="bg-surface px-8 py-10">
             <div className="space-y-4">
               <div className="inline-flex items-center gap-3 rounded-full bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
