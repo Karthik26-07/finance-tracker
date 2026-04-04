@@ -65,9 +65,10 @@ export const logger = {
    * Log authentication event
    */
   async auth(
-    action: 'LOGIN_SUCCESS' | 'LOGIN_FAILED' | 'REGISTER' | 'LOGOUT' | 'PASSWORD_CHANGE' | 'ACCOUNT_DELETE' | 'PROFILE_UPDATE' | 'LOGOUT_REDIRECT_ERROR',
+    action: 'LOGIN_SUCCESS' | 'LOGIN_FAILED' | 'REGISTER' | 'LOGOUT' | 'LOGOUT_REVOKED' | 'PASSWORD_CHANGE' | 'ACCOUNT_DELETE' | 'PROFILE_UPDATE' | 'LOGOUT_REDIRECT_ERROR',
     data: Record<string, string | number | boolean | undefined>
   ) {
+
     const context = await getRequestContext()
     pinoLogger.info(
       {

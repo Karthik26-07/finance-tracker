@@ -119,7 +119,7 @@ export function CategoryForm({
           </label>
           <input
             {...register("name")}
-            className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm text-sm font-medium text-text-primary placeholder:text-text-muted/40"
             placeholder="e.g. Health & Fitness"
           />
           {errors.name && (
@@ -134,17 +134,17 @@ export function CategoryForm({
             <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">
               Type
             </label>
-            <div className="relative rounded-xl overflow-hidden">
+            <div className="relative rounded-xl overflow-hidden group">
               <select
                 {...register("type")}
-                className="w-full pl-4 pr-10 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
+                className="w-full pl-4 pr-10 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none text-sm font-medium text-text-primary cursor-pointer"
               >
                 <option value="expense">Expense</option>
                 <option value="income">Income</option>
                 <option value="both">Both</option>
               </select>
               <ChevronDown
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none group-focus-within:text-primary transition-colors"
                 size={16}
               />
             </div>
@@ -154,10 +154,10 @@ export function CategoryForm({
             <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">
               Parent Category
             </label>
-            <div className="relative rounded-xl overflow-hidden">
+            <div className="relative rounded-xl overflow-hidden group">
               <select
                 {...register("parentId")}
-                className="w-full pl-4 pr-10 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
+                className="w-full pl-4 pr-10 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none text-sm font-medium text-text-primary cursor-pointer"
               >
                 <option value="">None (Top Level)</option>
                 {categories
@@ -169,7 +169,7 @@ export function CategoryForm({
                   ))}
               </select>
               <ChevronDown
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none group-focus-within:text-primary transition-colors"
                 size={16}
               />
             </div>
@@ -183,7 +183,7 @@ export function CategoryForm({
           <textarea
             {...register("description")}
             rows={2}
-            className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm resize-none"
+            className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-medium text-text-primary placeholder:text-text-muted/40 resize-none shadow-sm"
             placeholder="Structure your audit logic with a description..."
           />
         </div>
@@ -197,7 +197,7 @@ export function CategoryForm({
                 Color
               </label>
             </div>
-            <div className="flex items-center gap-3 bg-highlight/10 p-2.5 rounded-2xl border border-border/30 transition-all hover:border-primary/30">
+            <div className="flex items-center gap-3 bg-highlight/30 p-2.5 rounded-2xl border border-border/50 transition-all hover:border-primary/30 shadow-sm focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10">
               <div className="relative group shrink-0">
                 <input
                   type="color"
@@ -231,11 +231,11 @@ export function CategoryForm({
                 Icon
               </label>
             </div>
-            <div className="flex items-center gap-3 bg-highlight/10 p-2.5 rounded-2xl border border-border/30 transition-all hover:border-primary/30 relative">
+            <div className="flex items-center gap-3 bg-highlight/30 p-2.5 rounded-2xl border border-border/50 transition-all hover:border-primary/30 relative shadow-sm focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10">
               <button
                 type="button"
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="w-11 h-11 flex items-center justify-center bg-background rounded-xl text-2xl border border-border hover:scale-105 active:scale-95 transition-all shrink-0"
+                className="w-11 h-11 flex items-center justify-center bg-surface rounded-xl text-2xl border border-border hover:scale-105 active:scale-95 transition-all shrink-0"
               >
                 {watchedIcon || "📁"}
               </button>
@@ -254,7 +254,7 @@ export function CategoryForm({
               </div>
 
               {showEmojiPicker && (
-                <div className="absolute bottom-full left-0 mb-3 w-65 h-64 bg-surface border border-border/20 rounded-2xl z-60 flex flex-col p-3 animate-in zoom-in-90 slide-in-from-bottom-2 duration-200">
+                <div className="absolute bottom-full left-0 mb-3 w-65 h-64 bg-surface border border-border/20 rounded-2xl z-60 flex flex-col p-3 animate-in zoom-in-90 slide-in-from-bottom-2 duration-200 shadow-2xl">
                   <div className="flex items-center justify-between mb-3 px-1">
                     <h3 className="font-bold text-xs uppercase tracking-wider text-text-secondary">
                       Library
@@ -292,7 +292,7 @@ export function CategoryForm({
         <button
           type="submit"
           disabled={isPending}
-          className="flex-1 px-4 py-3.5 bg-primary text-white rounded-xl font-bold hover:brightness-110 active:brightness-95 disabled:opacity-70 transition-all active:scale-[0.98]"
+          className="flex-1 px-4 py-3.5 bg-linear-to-r from-primary to-primary-container text-white rounded-xl font-bold hover:brightness-110 active:brightness-95 disabled:opacity-70 transition-all shadow-lg hover:shadow-primary/20 active:scale-[0.98]"
         >
           {isPending
             ? "Saving..."

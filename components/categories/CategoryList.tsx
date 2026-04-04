@@ -7,6 +7,7 @@ import { CategoryForm } from '../forms/CategoryForm'
 import { Plus, Search, Filter, Layers, ChevronDown, X } from 'lucide-react'
 import { CategoryExplorer } from './CategoryExplorer'
 import { ConfirmationDialog } from '../ui/ConfirmationDialog'
+import { Modal } from '../ui/Modal'
 import { deleteCategory } from '@/actions/categories'
 import { toast } from '@/lib/store/useToast'
 
@@ -140,101 +141,58 @@ export function CategoryList({ categories }: CategoryListProps) {
       )}
 
       {/* Creation Modal: Root Nodes */}
-      {isAdding && (
-        <div className="fixed inset-0 z-120 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="w-full max-w-lg bg-surface p-8 rounded-[40px] border border-border/10 animate-in zoom-in-95 duration-300">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-1 h-4 bg-primary rounded-full" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Node Logic</span>
-                </div>
-                <h2 className="text-2xl font-black text-text-primary tracking-tight font-display">Initialize Category</h2>
-              </div>
-              <button 
-                onClick={() => setIsAdding(false)} 
-                className="p-2 hover:bg-highlight/50 rounded-xl text-text-muted transition-colors"
-                title="Cancel"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <CategoryForm 
-              categories={categories.map(c => ({ id: c.id, name: c.name }))}
-              isModal
-              onSuccess={() => setIsAdding(false)}
-            />
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={isAdding}
+        onClose={() => setIsAdding(false)}
+        title="Initialize Category"
+        subtitle="Define a new architectural node for your system"
+      >
+        <CategoryForm 
+          categories={categories.map(c => ({ id: c.id, name: c.name }))}
+          isModal
+          onSuccess={() => setIsAdding(false)}
+        />
+      </Modal>
 
       {/* Sub-Node Creation Modal */}
-      {addingSubParentId && (
-        <div className="fixed inset-0 z-120 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="w-full max-w-lg bg-surface p-8 rounded-[40px] border border-border/10 animate-in zoom-in-95 duration-300">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-1 h-4 bg-secondary rounded-full" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-secondary/60">Nested Architecture</span>
-                </div>
-                <h2 className="text-2xl font-black text-text-primary tracking-tight font-display">Create Sub-Node</h2>
-              </div>
-              <button 
-                onClick={() => setAddingSubParentId(null)} 
-                className="p-2 hover:bg-highlight/50 rounded-xl text-text-muted transition-colors"
-                title="Cancel"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <CategoryForm 
-              initialData={{ parentId: addingSubParentId }}
-              categories={categories.map(c => ({ id: c.id, name: c.name }))}
-              isModal
-              onSuccess={() => setAddingSubParentId(null)}
-            />
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={!!addingSubParentId}
+        onClose={() => setAddingSubParentId(null)}
+        title="Create Sub-Node"
+        subtitle="Extend the hierarchy of your financial system"
+      >
+        <CategoryForm 
+          initialData={{ parentId: addingSubParentId! }}
+          categories={categories.map(c => ({ id: c.id, name: c.name }))}
+          isModal
+          onSuccess={() => setAddingSubParentId(null)}
+        />
+      </Modal>
 
       {/* Editing Modal */}
-      {editingCategory && (
-        <div className="fixed inset-0 z-120 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="w-full max-w-lg bg-surface p-8 rounded-[40px] border border-border/10 animate-in zoom-in-95 duration-300">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-1 h-4 bg-primary rounded-full" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Node Tuning</span>
-                </div>
-                <h2 className="text-2xl font-black text-text-primary tracking-tight font-display">Configure Node</h2>
-              </div>
-              <button 
-                onClick={() => setEditingCategory(null)} 
-                className="p-2 hover:bg-highlight/50 rounded-xl text-text-muted transition-colors"
-                title="Cancel"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <CategoryForm 
-              categoryId={editingCategory.id}
-              initialData={{ 
-                name: editingCategory.name,
-                type: editingCategory.type as 'income' | 'expense' | 'both',
-                color: editingCategory.color,
-                icon: editingCategory.icon,
-                description: editingCategory.description,
-                parentId: editingCategory.parentId
-              }}
-              categories={categories.map(c => ({ id: c.id, name: c.name }))}
-              isModal
-              onSuccess={() => setEditingCategory(null)}
-            />
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={!!editingCategory}
+        onClose={() => setEditingCategory(null)}
+        title="Configure Node"
+        subtitle="Tune the parameters of this architectural element"
+      >
+        {editingCategory && (
+          <CategoryForm 
+            categoryId={editingCategory.id}
+            initialData={{ 
+              name: editingCategory.name,
+              type: editingCategory.type as 'income' | 'expense' | 'both',
+              color: editingCategory.color,
+              icon: editingCategory.icon,
+              description: editingCategory.description,
+              parentId: editingCategory.parentId
+            }}
+            categories={categories.map(c => ({ id: c.id, name: c.name }))}
+            isModal
+            onSuccess={() => setEditingCategory(null)}
+          />
+        )}
+      </Modal>
 
       <ConfirmationDialog 
         isOpen={!!deletingCategory}

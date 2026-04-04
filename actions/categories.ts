@@ -1,30 +1,26 @@
 'use server'
 
-import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+
+
 import { categories, transactions } from '@/lib/db/schema'
 import { createCategorySchema, updateCategorySchema } from '@/lib/validations/categories'
 import { eq, and } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
-import { logger } from '@/lib/logger'
 import { executeServerAction } from '@/lib/server-action-middleware'
 import { AuthError, ValidationError, ErrorResponse } from '@/lib/errors'
 
+
 export async function createCategory(input: unknown): Promise<ErrorResponse | { success: true, id: string }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to create a category')
-      }
-
+    async (session) => {
       const parsed = createCategorySchema.safeParse(input)
       if (!parsed.success) {
         throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid category data')
       }
 
       const data = parsed.data
-      const userId = session.user.id
+      const userId = session!.user.id
 
       const [newCategory] = await db.insert(categories).values({
         userId,
@@ -37,7 +33,6 @@ export async function createCategory(input: unknown): Promise<ErrorResponse | { 
         isSystem: false,
       }).returning({ id: categories.id })
 
-      await logger.info('Category created', { action: 'createCategory', categoryId: newCategory.id, userId: session.user.id })
       revalidatePath('/categories')
       return { success: true, id: newCategory.id }
     },
@@ -47,19 +42,14 @@ export async function createCategory(input: unknown): Promise<ErrorResponse | { 
 
 export async function updateCategory(id: string, input: unknown): Promise<ErrorResponse | { success: true }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to update category')
-      }
-
+    async (session) => {
       const parsed = updateCategorySchema.safeParse(input)
       if (!parsed.success) {
         throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid category data')
       }
 
       // Ensure user owns category and it's not a system category
-      const [existing] = await db.select().from(categories).where(and(eq(categories.id, id), eq(categories.userId, session.user.id), eq(categories.isSystem, false))).limit(1)
+      const [existing] = await db.select().from(categories).where(and(eq(categories.id, id), eq(categories.userId, session!.user.id), eq(categories.isSystem, false))).limit(1)
       if (!existing) {
         throw new AuthError('NOT_FOUND', 'Category not found or cannot be modified')
       }
@@ -68,7 +58,6 @@ export async function updateCategory(id: string, input: unknown): Promise<ErrorR
         ...parsed.data,
       }).where(eq(categories.id, id))
 
-      await logger.info('Category updated', { action: 'updateCategory', categoryId: id, userId: session.user.id })
       revalidatePath('/categories')
       return { success: true }
     },
@@ -78,14 +67,9 @@ export async function updateCategory(id: string, input: unknown): Promise<ErrorR
 
 export async function deleteCategory(id: string): Promise<ErrorResponse | { success: true }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to delete category')
-      }
-
+    async (session) => {
       // Ensure user owns category and it's not a system category
-      const [existing] = await db.select().from(categories).where(and(eq(categories.id, id), eq(categories.userId, session.user.id), eq(categories.isSystem, false))).limit(1)
+      const [existing] = await db.select().from(categories).where(and(eq(categories.id, id), eq(categories.userId, session!.user.id), eq(categories.isSystem, false))).limit(1)
       if (!existing) {
         throw new AuthError('NOT_FOUND', 'Category not found or cannot be deleted')
       }
@@ -101,7 +85,6 @@ export async function deleteCategory(id: string): Promise<ErrorResponse | { succ
 
       await db.delete(categories).where(eq(categories.id, id))
 
-      await logger.info('Category deleted', { action: 'deleteCategory', categoryId: id, userId: session.user.id })
       revalidatePath('/categories')
       revalidatePath('/transactions')
       return { success: true }
@@ -109,3 +92,4 @@ export async function deleteCategory(id: string): Promise<ErrorResponse | { succ
     { action: 'deleteCategory' }
   )
 }
+

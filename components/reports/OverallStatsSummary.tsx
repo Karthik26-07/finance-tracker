@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { Wallet, TrendingUp, TrendingDown, ClipboardList } from "lucide-react";
 
 interface OverallStatsSummaryProps {
@@ -11,6 +13,12 @@ interface OverallStatsSummaryProps {
 }
 
 export function OverallStatsSummary({ stats }: OverallStatsSummaryProps) {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   const metrics = [
     {
       label: "Selected Range Income",
@@ -43,12 +51,18 @@ export function OverallStatsSummary({ stats }: OverallStatsSummaryProps) {
     },
   ];
 
+  const formatValue = (m: typeof metrics[0]) => {
+    if (m.isCurrency === false) return m.value
+    if (!isMounted) return Math.abs(m.value).toFixed(2)
+    return Math.abs(m.value).toLocaleString()
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       {metrics.map((m, i) => (
         <div
           key={i}
-          className={`p-8 bg-surface border border-border/50 ${m.borderColor} border-l-4 rounded-4xl shadow-ambient relative overflow-hidden group hover:scale-[1.02] transition-transform duration-300 cursor-default`}
+          className="p-5 sm:p-6 bg-surface border border-border/40 rounded-3xl shadow-ambient overflow-hidden group transition-all hover:scale-[1.02] duration-300 cursor-default"
         >
           {/* Decorative Background Icon */}
           <div
@@ -68,11 +82,9 @@ export function OverallStatsSummary({ stats }: OverallStatsSummaryProps) {
 
           <div>
             <p
-              className={`text-2xl font-black tracking-tighter tabular-nums font-display ${m.color === "secondary" ? "text-secondary" : m.color === "tertiary" ? "text-tertiary" : "text-text-primary"}`}
+              className={`text-xl sm:text-2xl font-black tracking-tighter tabular-nums font-display ${m.color === "secondary" ? "text-secondary" : m.color === "tertiary" ? "text-tertiary" : "text-text-primary"}`}
             >
-              {m.isCurrency === false
-                ? m.value
-                : `₹${Math.abs(m.value).toLocaleString()}`}
+              {m.isCurrency === false ? "" : "₹"}{formatValue(m)}
             </p>
             <div className="flex items-center gap-2 mt-2">
               <div className={`w-1 h-1 rounded-full bg-${m.color}`} />

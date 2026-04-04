@@ -9,6 +9,7 @@ import { createTransaction, updateTransaction } from '@/actions/transactions'
 import { Account, Category } from '@/lib/db/schema'
 import { toast } from '@/lib/store/useToast'
 import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog'
+import { ChevronDown } from 'lucide-react'
 
 interface TransactionFormProps {
   initialData?: Partial<CreateTransactionInput>
@@ -127,13 +128,13 @@ export function TransactionForm({
         {/* Amount Field */}
         <div>
           <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">Amount</label>
-          <div className="relative shadow-sm rounded-xl">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary font-mono">₹</span>
+          <div className="relative shadow-sm rounded-xl overflow-hidden group">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-mono group-focus-within:text-current transition-colors">₹</span>
             <input 
               type="number"
               step="0.01"
               {...register('amount')}
-              className={`w-full pl-8 pr-4 py-4 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-2xl font-mono tabular-nums ${
+              className={`w-full pl-9 pr-4 py-4 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-2xl font-black tabular-nums ${
                 type === 'income' ? 'text-accent-success' : type === 'expense' ? 'text-accent-danger' : 'text-text-primary'
               }`}
               placeholder="0.00"
@@ -148,16 +149,17 @@ export function TransactionForm({
             <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">
               {type === 'transfer' ? 'From Account' : 'Account'}
             </label>
-            <div className="relative shadow-sm rounded-xl overflow-hidden">
+            <div className="relative shadow-sm rounded-xl overflow-hidden group">
               <select 
                 {...register('accountId')}
-                className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
+                className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none text-sm font-medium text-text-primary cursor-pointer"
               >
                 <option value="" disabled>Select account</option>
                 {accounts.map(acc => (
                   <option key={acc.id || 'err'} value={acc.id || ''}>{acc.name} (₹{parseFloat(acc.balance || '0').toLocaleString()})</option>
                 ))}
               </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none group-focus-within:text-primary transition-colors" size={16} />
             </div>
             {errors.accountId && <p className="mt-1.5 text-xs text-accent-danger font-medium ml-1">{String(errors.accountId.message)}</p>}
           </div>
@@ -165,32 +167,34 @@ export function TransactionForm({
           {type === 'transfer' ? (
             <div>
               <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">To Account</label>
-              <div className="relative shadow-sm rounded-xl overflow-hidden">
+              <div className="relative shadow-sm rounded-xl overflow-hidden group">
                 <select 
                   {...register('transferToAccountId')}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
+                  className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none text-sm font-medium text-text-primary cursor-pointer"
                 >
                   <option value="" disabled>Select account</option>
                   {accounts.map(acc => (
                     <option key={acc.id || 'err'} value={acc.id || ''}>{acc.name} (₹{parseFloat(acc.balance || '0').toLocaleString()})</option>
                   ))}
                 </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none group-focus-within:text-primary transition-colors" size={16} />
               </div>
               {errors.transferToAccountId && <p className="mt-1.5 text-xs text-accent-danger font-medium ml-1">{String(errors.transferToAccountId.message)}</p>}
             </div>
           ) : (
             <div>
               <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">Category</label>
-              <div className="relative shadow-sm rounded-xl overflow-hidden">
+              <div className="relative shadow-sm rounded-xl overflow-hidden group">
                 <select 
                   {...register('categoryId')}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
+                  className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none text-sm font-medium text-text-primary cursor-pointer"
                 >
                   <option value="">No category</option>
                   {filteredCategories.map(cat => (
                     <option key={cat.id || 'err'} value={cat.id || ''}>{cat.icon} {cat.name}</option>
                   ))}
                 </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none group-focus-within:text-primary transition-colors" size={16} />
               </div>
               {errors.categoryId && <p className="mt-1.5 text-xs text-accent-danger font-medium ml-1">{String(errors.categoryId.message)}</p>}
             </div>
@@ -204,7 +208,7 @@ export function TransactionForm({
             <input 
               type="date"
               {...register('date')}
-              className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm"
+              className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm text-sm font-medium text-text-primary"
             />
             {errors.date && <p className="mt-1.5 text-xs text-accent-danger font-medium ml-1">{String(errors.date.message)}</p>}
           </div>
@@ -213,7 +217,7 @@ export function TransactionForm({
             <input 
               type="time"
               {...register('time')}
-              className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm"
+              className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm text-sm font-medium text-text-primary"
             />
           </div>
         </div>
@@ -224,7 +228,7 @@ export function TransactionForm({
           <textarea 
             {...register('note')}
             rows={2}
-            className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none shadow-sm"
+            className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none shadow-sm text-sm font-medium text-text-primary placeholder:text-text-muted/40"
             placeholder="What was this for?"
           />
         </div>

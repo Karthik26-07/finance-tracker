@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import { getGroups, getGroupDetails, getGroupDebts, getGroupTransactions } from '@/lib/db/queries/groups'
 import { GroupList, GroupDetail, GroupActions } from '@/components/groups'
 import { Group, GroupDebts, GroupTransaction } from '@/types/groups'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { Users } from 'lucide-react'
 
 interface GroupsPageProps {
   searchParams: Promise<{
@@ -36,22 +38,17 @@ export default async function GroupsPage({ searchParams }: GroupsPageProps) {
   }
 
   return (
-    <div className="max-w-full mx-auto px-4 py-8 animate-in fade-in duration-700">
-      {/* Premium Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
-        <div className="flex items-center gap-6">
-          <div className="w-2 h-16 bg-primary rounded-full hidden md:block shadow-sm shadow-primary/20" />
-          <div>
-            <h1 className="text-3xl font-black tracking-tighter text-text-primary font-display mb-1 flex items-center gap-4">
-               Group Expenses
-            </h1>
-            <p className="text-[10px] text-text-secondary font-black opacity-80 uppercase tracking-[0.2em] font-mono leading-none">High-fidelity collective expenditure tracking</p>
-          </div>
-        </div>
-        
-        <GroupActions groups={groups as any} userId={userId} />
-      </div>
-
+    <div className="max-w-7xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <PageHeader 
+        title="Shared Entities"
+        subtitle="Manage group expenses, splits, and recursive debt tracking"
+      >
+        <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-linear-to-br from-primary to-primary-container text-white rounded-2xl text-xs font-bold hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95">
+          <Users size={14} />
+          Create New Group
+        </button>
+      </PageHeader>
+      
       <div className="grid grid-cols-12 gap-10">
         <GroupList groups={groups as any} />
         

@@ -29,7 +29,7 @@ interface MonthlyFlowChartProps {
 
 export function MonthlyFlowChart({ data }: MonthlyFlowChartProps) {
   return (
-    <div className="p-8 bg-surface border border-border/40 rounded-[2.5rem] shadow-ambient overflow-hidden group transition-all">
+    <div className="p-5 sm:p-8 bg-surface border border-border/40 rounded-4xl shadow-ambient overflow-hidden group transition-all">
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
         <div className="flex items-center gap-4">
           <div className="w-1.5 h-10 bg-primary rounded-full shadow-sm shadow-primary/20" />
@@ -136,7 +136,7 @@ export function CategoryBreakdownReport({ data }: { data: CategoryData[] }) {
   }));
 
   return (
-    <div className="p-8 bg-surface border border-border/40 rounded-[2.5rem] shadow-ambient h-full group transition-all overflow-hidden">
+    <div className="p-5 sm:p-8 bg-surface border border-border/40 rounded-4xl shadow-ambient h-full group transition-all overflow-hidden">
       <div className="mb-10 flex items-center gap-4">
         <div className="w-1.5 h-10 bg-secondary rounded-full shadow-sm shadow-secondary/20" />
         <div>
@@ -218,7 +218,7 @@ export function CategoryBreakdownReport({ data }: { data: CategoryData[] }) {
 
 export function CashFlowTrendChart({ data }: { data: MonthlyFlowData[] }) {
   return (
-    <div className="p-8 bg-surface border border-border/10 rounded-[2.5rem] shadow-ambient h-full overflow-hidden group transition-all">
+    <div className="p-5 sm:p-8 bg-surface border border-border/10 rounded-4xl shadow-ambient h-full overflow-hidden group transition-all">
       <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <div className="w-1.5 h-10 bg-primary rounded-full shadow-sm shadow-primary/20" />

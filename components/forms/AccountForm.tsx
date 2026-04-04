@@ -142,7 +142,7 @@ export function AccountForm({
           </label>
           <input
             {...register("name")}
-            className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm"
+            className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm text-sm font-medium text-text-primary placeholder:text-text-muted/40"
             placeholder="e.g. HDFC Savings"
           />
           {errors.name && (
@@ -157,13 +157,13 @@ export function AccountForm({
             <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">
               Account Type
             </label>
-            <div className="relative shadow-sm rounded-xl">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none">
+            <div className="relative shadow-sm rounded-xl overflow-hidden group">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-primary pointer-events-none group-focus-within:scale-110 transition-transform">
                 {getTypeIcon(watchedType)}
               </div>
               <select
                 {...register("type")}
-                className="w-full pl-11 pr-8 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
+                className="w-full pl-11 pr-8 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all appearance-none text-sm font-medium text-text-primary cursor-pointer"
               >
                 <option value="bank">Bank Account</option>
                 <option value="cash">Cash Wallet</option>
@@ -172,7 +172,7 @@ export function AccountForm({
                 <option value="investment">Investment</option>
               </select>
               <ChevronDown
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none group-focus-within:text-primary transition-colors"
                 size={16}
               />
             </div>
@@ -188,15 +188,15 @@ export function AccountForm({
               <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">
                 Opening Balance
               </label>
-              <div className="relative shadow-sm rounded-xl">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary font-mono">
+              <div className="relative shadow-sm rounded-xl overflow-hidden group">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-mono group-focus-within:text-primary transition-colors">
                   ₹
                 </span>
                 <input
                   type="number"
                   step="0.01"
                   {...register("openingBalance")}
-                  className="w-full pl-9 pr-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all tabular-nums font-mono text-base"
+                  className="w-full pl-9 pr-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all tabular-nums font-mono text-sm font-medium text-text-primary placeholder:text-text-muted/40"
                   placeholder="0.00"
                 />
               </div>

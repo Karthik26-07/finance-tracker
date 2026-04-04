@@ -1,15 +1,10 @@
 'use client'
 
-import React from 'react'
-import Link from 'next/link'
+import React, { useState, useEffect } from 'react'
 import { Account } from '@/types'
+import Link from 'next/link'
 
 // Setup mapping for account type colors
-// bank: #4F8EF7 (blue)
-// cash: #34D399 (green)
-// credit: #F87171 (red)
-// wallet: #FBBF24 (yellow)
-// investment: #A78BFA (purple)
 const typeColors = {
   bank: 'bg-chart-1 text-white',
   cash: 'bg-chart-2 text-white',
@@ -23,11 +18,21 @@ interface AccountCardProps {
 }
 
 export function AccountCard({ account }: AccountCardProps) {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   const balance = parseFloat(account.balance || '0')
-  const formattedBalance = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-  }).format(balance)
+  
+  const formatBalance = (val: number) => {
+    if (!isMounted) return `₹${val.toFixed(2)}`
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(val)
+  }
 
   // fallback to generic symbol if no icon provided
   const IconSpan = account.icon ? account.icon : (account.type === 'bank' ? '🏦' : account.type === 'cash' ? '💵' : account.type === 'credit' ? '💳' : '💼')
@@ -54,7 +59,7 @@ export function AccountCard({ account }: AccountCardProps) {
         
         <div className="mt-6">
           <p className="text-xl font-black text-text-primary tabular-nums tracking-tighter">
-            {formattedBalance}
+            {formatBalance(balance)}
           </p>
         </div>
       </div>

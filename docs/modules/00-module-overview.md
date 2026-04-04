@@ -4,7 +4,7 @@
 
 | Module | Name | Status | Priority |
 |--------|------|--------|----------|
-| M1 | Auth & User Management | Implemented | P0 |
+| M1 | Auth & User Management | Modernized (JWT) | P0 |
 | M2 | Accounts & Wallets | Implemented | P0 |
 | M3 | Transactions (Core) | Implemented | P0 |
 | M4 | Categories & Tags | Implemented | P1 |

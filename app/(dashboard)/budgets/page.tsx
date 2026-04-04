@@ -1,7 +1,12 @@
+import { PageHeader } from '@/components/ui/PageHeader'
+
 export default function BudgetsPage() {
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Budgets</h1>
+    <div className="space-y-8">
+      <PageHeader 
+        title="Budgets & Planning"
+        subtitle="Configure and monitor your allocation thresholds"
+      />
       {/* TODO: M9 — Budget list with progress bars */}
     </div>
   )

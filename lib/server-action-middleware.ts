@@ -1,14 +1,11 @@
-'use server'
-
-import { handleActionError, ErrorResponse } from './errors'
+import { auth } from './auth'
+import { AuthError, handleActionError, ErrorResponse } from './errors'
 import { logger } from './logger'
+import type { Session } from 'next-auth'
 
 /**
  * Global server action middleware
- * Wraps all server actions with automatic error handling
- *
- * This eliminates the need for try-catch blocks in each action
- * All errors are automatically caught, logged, and returned as ErrorResponse
+ * Wraps all server actions with automatic error handling and authorization
  */
 
 interface ActionContext {
@@ -17,24 +14,75 @@ interface ActionContext {
   [key: string]: string | number | boolean | undefined
 }
 
+interface ActionOptions {
+  isPublic?: boolean
+}
+
 /**
  * Safe wrapper for server actions
- * Automatically catches ALL errors and returns proper response
- * No try-catch needed inside the handler
+ * Automatically handles AUTH, logs errors, and returns proper response
  *
- * @param handler - The server action handler
- * @param context - Action name and context
- * @returns Wrapped handler that automatically handles errors
+ * @param handler - The server action handler, receives session if authenticated
+ * @param context - Action name and context for logging
+ * @param options - Configure if this action requires auth (default: true)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function executeServerAction<T = any>(
-  handler: () => Promise<T | ErrorResponse | void>,
-  context: ActionContext
-): Promise<T | ErrorResponse> {
-  try {
-    const result = await handler()
+import { db } from './db'
+import { sessions } from './db/schema'
+import { eq, and } from 'drizzle-orm'
 
-    // If handler returns error, it's already been logged by the handler
+export async function executeServerAction<T = any>(
+  handler: (session: Session | null) => Promise<T | ErrorResponse | void>,
+  context: ActionContext,
+  options: ActionOptions = { isPublic: false }
+): Promise<T | ErrorResponse> {
+  const startTime = Date.now()
+  let session: Session | null = null
+
+  try {
+    // 1. Authorization check
+    session = await auth()
+    
+    if (!options.isPublic) {
+      if (!session?.user?.id) {
+        throw new AuthError('UNAUTHORIZED', 'Authentication required to perform this action')
+      }
+
+      // 1b. HIGH SECURITY: DB-backed revocation check
+      // This runs in Node runtime (Server Action context), so DB queries are safe.
+      const [storedSession] = await db
+        .select()
+        .from(sessions)
+        .where(and(
+          eq(sessions.sessionToken, session.user.jti),
+          eq(sessions.revoked, false)
+        ))
+        .limit(1)
+
+      if (!storedSession) {
+        await logger.security('AUTH_ACTION_REVOKED', { 
+          action: context.action, 
+          jti: session.user.jti, 
+          userId: session.user.id 
+        }, 'error')
+        throw new AuthError('UNAUTHORIZED', 'Session has been revoked. Please log in again.')
+      }
+    }
+
+
+    // 2. Execute handler
+    const result = await handler(session)
+
+    // Log successful action if it's not a generic response
+    const duration = Date.now() - startTime
+    if (!(result && typeof result === 'object' && 'error' in result)) {
+      await logger.info(`Action success: ${context.action}`, {
+        ...context,
+        userId: session?.user?.id,
+        duration,
+      })
+    }
+
+    // If handler returns error, it's already been logged or needs to be handled
     if (result && typeof result === 'object' && 'error' in result) {
       return result as ErrorResponse
     }
@@ -45,22 +93,22 @@ export async function executeServerAction<T = any>(
     // Global error handler - catches ALL unhandled exceptions
     const errorResponse = await handleActionError(error, {
       action: context.action,
-      userId: context.userId,
+      userId: session?.user?.id || context.userId,
     })
 
     // Additional security logging for unexpected errors
     if (error instanceof Error) {
-      await logger.security('UNHANDLED_SERVER_ACTION_ERROR', {
+      await logger.error(error, {
         action: context.action,
-        userId: context.userId,
+        userId: session?.user?.id,
         errorType: error.constructor.name,
-        message: error.message,
-      }, 'error')
+      })
     }
 
     return errorResponse
   }
 }
+
 
 /**
  * Type-safe wrapper with automatic logging

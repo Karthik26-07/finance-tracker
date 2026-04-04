@@ -6,4 +6,6 @@ export * from './groups'
 export * from './recurring'
 export * from './budgets'
 export * from './snapshots'
+export * from './sessions'
 export * from './relations'
+

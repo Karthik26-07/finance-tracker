@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Wallet, TrendingUp, TrendingDown, PiggyBank, ArrowUpRight, ArrowDownRight } from 'lucide-react'
 
 interface SummaryStatsProps {
@@ -13,6 +13,12 @@ interface SummaryStatsProps {
 }
 
 export function SummaryStats({ data }: SummaryStatsProps) {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   const stats = [
     {
       label: 'Net Worth',
@@ -48,12 +54,17 @@ export function SummaryStats({ data }: SummaryStatsProps) {
     },
   ]
 
+  const formatCurrency = (val: number) => {
+    if (!isMounted) return Math.abs(val).toFixed(2)
+    return Math.abs(val).toLocaleString(undefined, { minimumFractionDigits: 2 })
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {stats.map((stat, i) => (
         <div 
           key={i} 
-          className="group p-6 bg-surface border border-border/50 rounded-3xl shadow-ambient hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden"
+          className="group p-4 sm:p-6 bg-surface border border-border/50 rounded-3xl shadow-ambient hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 relative overflow-hidden"
         >
           {/* Background Decorative Icon */}
           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-125 transition-transform duration-500 pointer-events-none">
@@ -61,14 +72,14 @@ export function SummaryStats({ data }: SummaryStatsProps) {
           </div>
           
           {/* Foreground Icon */}
-          <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.iconColor} flex items-center justify-center mb-6`}>
-            <stat.Icon size={20} />
+          <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${stat.bg} ${stat.iconColor} flex items-center justify-center mb-4 sm:mb-6`}>
+            <stat.Icon className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           
           <div className="space-y-1">
             <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] font-mono">{stat.label}</h3>
-            <p className="text-2xl font-black text-text-primary tracking-tighter tabular-nums font-mono">
-              ₹{Math.abs(stat.value).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            <p className="text-xl sm:text-2xl font-black text-text-primary tracking-tighter tabular-nums font-mono">
+              ₹{formatCurrency(stat.value)}
             </p>
           </div>
           

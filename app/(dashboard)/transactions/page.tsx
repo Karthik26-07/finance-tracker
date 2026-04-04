@@ -7,6 +7,7 @@ import { getCategories } from '@/lib/db/queries/categories'
 import { TransactionHistory } from '@/components/transactions/TransactionHistory'
 import { TransactionFilters } from '@/components/transactions/TransactionFilters'
 import { TransactionActions } from '@/components/transactions/TransactionActions'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react'
 
 interface TransactionsPageProps {
@@ -48,16 +49,13 @@ export default async function TransactionsPage({ searchParams }: TransactionsPag
   ])
 
   return (
-    <div className="max-w-full mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter text-text-primary font-display mb-1">Transactions</h1>
-          <p className="text-text-secondary text-sm font-medium opacity-80 uppercase tracking-widest font-mono">Master your financial pulse</p>
-        </div>
-        
+    <div className="space-y-12 animate-in fade-in duration-500">
+      <PageHeader 
+        title="Transactions"
+        subtitle="Master your financial pulse"
+      >
         <TransactionActions accounts={accounts} />
-      </div>
+      </PageHeader>
 
       {/* Stats Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

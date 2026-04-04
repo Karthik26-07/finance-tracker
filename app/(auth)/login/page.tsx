@@ -42,9 +42,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background px-4 py-12">
-      <div className="mx-auto grid max-w-275 gap-8 xl:grid-cols-[0.95fr_1.05fr]">
-        <section className="hidden rounded-4xl bg-linear-to-br from-primary to-primary-container p-10 text-white shadow-ambient xl:block">
+    <div className="min-h-screen bg-background px-4 py-8 sm:py-12">
+      <div className="mx-auto grid max-w-275 gap-6 sm:gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="hidden rounded-4xl bg-linear-to-br from-primary to-primary-container p-8 sm:p-10 text-white shadow-ambient lg:block">
           <div className="space-y-8">
             <div className="inline-flex items-center gap-3 rounded-3xl bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em]">
               FinTrack
@@ -100,64 +100,66 @@ export default function LoginPage() {
               </div>
             )}
 
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="block text-sm font-semibold text-text-primary"
-              >
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                {...register("email")}
-                className="w-full rounded-3xl border border-border-subtle bg-background/80 px-4 py-3 text-text-primary placeholder:text-text-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="name@example.com"
-                disabled={loading}
-              />
-              {errors.email && (
-                <p className="text-sm text-accent-danger">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
+            <div className="space-y-4">
+              <div className="space-y-2">
                 <label
-                  htmlFor="password"
-                  className="text-sm font-semibold text-text-primary"
+                  htmlFor="email"
+                  className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1"
                 >
-                  Password
+                  Email address
                 </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm font-semibold text-primary hover:text-primary-container"
-                >
-                  Forgot?
-                </Link>
+                <input
+                  id="email"
+                  type="email"
+                  {...register("email")}
+                  className="w-full rounded-2xl border border-border/60 bg-background/40 backdrop-blur-md px-4 py-4 text-text-primary placeholder:text-text-muted/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-medium"
+                  placeholder="name@example.com"
+                  disabled={loading}
+                />
+                {errors.email && (
+                  <p className="text-xs text-accent-danger font-medium ml-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
-              <input
-                id="password"
-                type="password"
-                {...register("password")}
-                className="w-full rounded-3xl border border-border-subtle bg-background/80 px-4 py-3 text-text-primary placeholder:text-text-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="Enter your password"
-                disabled={loading}
-              />
-              {errors.password && (
-                <p className="text-sm text-accent-danger">
-                  {errors.password.message}
-                </p>
-              )}
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <label
+                    htmlFor="password"
+                    className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5"
+                  >
+                    Password
+                  </label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-primary-container"
+                  >
+                    Forgot?
+                  </Link>
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  {...register("password")}
+                  className="w-full rounded-2xl border border-border/60 bg-background/40 backdrop-blur-md px-4 py-4 text-text-primary placeholder:text-text-muted/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-medium"
+                  placeholder="Enter your password"
+                  disabled={loading}
+                />
+                {errors.password && (
+                  <p className="text-xs text-accent-danger font-medium ml-1">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-full bg-primary px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition hover:bg-primary-container disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full rounded-2xl bg-linear-to-r from-primary to-primary-container px-4 py-4 text-base font-bold text-white shadow-xl shadow-primary/20 transition hover:brightness-110 active:brightness-95 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Constructing Identity..." : "Access Dashboard"}
             </button>
           </form>
 

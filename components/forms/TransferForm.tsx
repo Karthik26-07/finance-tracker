@@ -67,66 +67,71 @@ export function TransferForm({ accounts, onSuccess }: TransferFormProps) {
 
       <div className="space-y-4">
         <div>
-           <label className="block text-sm font-medium text-text-secondary mb-1">From Account</label>
+           <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">From Account</label>
            <select 
              {...register('fromAccountId')}
-             className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+             className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm text-sm font-medium text-text-primary appearance-none cursor-pointer"
            >
              <option value="">Select source account</option>
              {accounts.map(a => (
                <option key={`from-${a.id}`} value={a.id}>{a.name} (₹{a.balance})</option>
              ))}
            </select>
-           {errors.fromAccountId && <p className="mt-1 text-sm text-accent-danger">{String(errors.fromAccountId.message)}</p>}
+           {errors.fromAccountId && <p className="mt-1.5 text-xs text-accent-danger font-medium ml-1">{String(errors.fromAccountId.message)}</p>}
         </div>
 
         <div>
-           <label className="block text-sm font-medium text-text-secondary mb-1">To Account</label>
+           <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">To Account</label>
            <select 
              {...register('toAccountId')}
-             className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+             className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm text-sm font-medium text-text-primary appearance-none cursor-pointer"
            >
              <option value="">Select destination account</option>
              {accounts.map(a => (
                <option key={`to-${a.id}`} value={a.id}>{a.name}</option>
              ))}
            </select>
-           {errors.toAccountId && <p className="mt-1 text-sm text-accent-danger">{String(errors.toAccountId.message)}</p>}
+           {errors.toAccountId && <p className="mt-1.5 text-xs text-accent-danger font-medium ml-1">{String(errors.toAccountId.message)}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-secondary mb-1">Amount</label>
-          <input 
-            type="number"
-            step="0.01"
-            {...register('amount')}
-            className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all tabular-nums text-2xl font-semibold"
-            placeholder="0.00"
-          />
-          {errors.amount && <p className="mt-1 text-sm text-accent-danger">{String(errors.amount.message)}</p>}
+          <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">Amount</label>
+          <div className="relative shadow-sm rounded-xl overflow-hidden group">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-mono group-focus-within:text-primary transition-colors">
+              ₹
+            </span>
+            <input 
+              type="number"
+              step="0.01"
+              {...register('amount')}
+              className="w-full pl-9 pr-4 py-4 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all tabular-nums text-2xl font-black text-text-primary placeholder:text-text-muted/30"
+              placeholder="0.00"
+            />
+          </div>
+          {errors.amount && <p className="mt-1.5 text-xs text-accent-danger font-medium ml-1">{String(errors.amount.message)}</p>}
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-             <label className="block text-sm font-medium text-text-secondary mb-1">Date</label>
+            <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">Date</label>
             <input 
               type="date"
               {...register('date')}
-              className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm text-sm font-medium text-text-primary"
             />
-            {errors.date && <p className="mt-1 text-sm text-accent-danger">{String(errors.date.message)}</p>}
+            {errors.date && <p className="mt-1.5 text-xs text-accent-danger font-medium ml-1">{String(errors.date.message)}</p>}
           </div>
         </div>
 
         <div>
-           <label className="block text-sm font-medium text-text-secondary mb-1">Note (Optional)</label>
+          <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">Note (Optional)</label>
           <input 
             type="text"
             {...register('note')}
-            className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            className="w-full px-4 py-3 rounded-xl border border-border/60 bg-surface/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm text-sm font-medium text-text-primary placeholder:text-text-muted/40"
             placeholder="e.g. Monthly savings transfer"
           />
-          {errors.note && <p className="mt-1 text-sm text-accent-danger">{String(errors.note.message)}</p>}
+          {errors.note && <p className="mt-1.5 text-xs text-accent-danger font-medium ml-1">{String(errors.note.message)}</p>}
         </div>
       </div>
 

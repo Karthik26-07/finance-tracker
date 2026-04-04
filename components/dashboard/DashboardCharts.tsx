@@ -44,7 +44,7 @@ export function DashboardCharts({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Spending Trend */}
-      <div className="p-8 bg-surface border border-border/50 rounded-[2.5rem] shadow-ambient">
+      <div className="p-5 sm:p-8 bg-surface border border-border/50 rounded-4xl shadow-ambient">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-lg font-black tracking-tight text-text-primary">
@@ -128,7 +128,7 @@ export function DashboardCharts({
       </div>
 
       {/* Category Allocation */}
-      <div className="p-8 bg-surface border border-border/50 rounded-[2.5rem] shadow-ambient">
+      <div className="p-5 sm:p-8 bg-surface border border-border/50 rounded-4xl shadow-ambient">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h3 className="text-lg font-black tracking-tight text-text-primary">

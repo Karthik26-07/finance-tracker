@@ -1,30 +1,26 @@
 'use server'
 
-import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+
 import { accounts, transactions } from '@/lib/db/schema'
 import { createAccountSchema, updateAccountSchema, transferSchema } from '@/lib/validations/accounts'
 import { eq, sql, and } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
-import { logger } from '@/lib/logger'
 import { executeServerAction } from '@/lib/server-action-middleware'
 import { AuthError, ValidationError, ErrorResponse } from '@/lib/errors'
 
+
 export async function createAccount(input: unknown): Promise<ErrorResponse | { success: true, id: string }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to create an account')
-      }
-
+    async (session) => {
       const parsed = createAccountSchema.safeParse(input)
       if (!parsed.success) {
         throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid account data')
       }
 
       const data = parsed.data
-      const userId = session.user.id
+      const userId = session!.user.id
+
       
       const [newAccount] = await db.insert(accounts).values({
         userId,
@@ -36,7 +32,6 @@ export async function createAccount(input: unknown): Promise<ErrorResponse | { s
         icon: data.icon || null,
       }).returning({ id: accounts.id })
 
-      await logger.info('Account created', { action: 'createAccount', accountId: newAccount.id, userId: session.user.id })
       revalidatePath('/accounts')
       return { success: true, id: newAccount.id }
     },
@@ -46,19 +41,15 @@ export async function createAccount(input: unknown): Promise<ErrorResponse | { s
 
 export async function updateAccount(id: string, input: unknown): Promise<ErrorResponse | { success: true }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to update account')
-      }
-
+    async (session) => {
       const parsed = updateAccountSchema.safeParse(input)
       if (!parsed.success) {
         throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid account data')
       }
 
       // Ensure user owns account
-      const [existing] = await db.select().from(accounts).where(and(eq(accounts.id, id), eq(accounts.userId, session.user.id))).limit(1)
+      const [existing] = await db.select().from(accounts).where(and(eq(accounts.id, id), eq(accounts.userId, session!.user.id))).limit(1)
+
       if (!existing) {
         throw new AuthError('NOT_FOUND', 'Account not found')
       }
@@ -69,7 +60,6 @@ export async function updateAccount(id: string, input: unknown): Promise<ErrorRe
         updatedAt: new Date()
       }).where(eq(accounts.id, id))
 
-      await logger.info('Account updated', { action: 'updateAccount', accountId: id, userId: session.user.id })
       revalidatePath('/accounts')
       revalidatePath(`/accounts/${id}`)
       return { success: true }
@@ -80,13 +70,9 @@ export async function updateAccount(id: string, input: unknown): Promise<ErrorRe
 
 export async function archiveAccount(id: string): Promise<ErrorResponse | { success: true }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to archive account')
-      }
+    async (session) => {
+      const [existing] = await db.select().from(accounts).where(and(eq(accounts.id, id), eq(accounts.userId, session!.user.id))).limit(1)
 
-      const [existing] = await db.select().from(accounts).where(and(eq(accounts.id, id), eq(accounts.userId, session.user.id))).limit(1)
       if (!existing) {
         throw new AuthError('NOT_FOUND', 'Account not found')
       }
@@ -96,7 +82,6 @@ export async function archiveAccount(id: string): Promise<ErrorResponse | { succ
         updatedAt: new Date()
       }).where(eq(accounts.id, id))
 
-      await logger.info('Account archived', { action: 'archiveAccount', accountId: id, userId: session.user.id })
       revalidatePath('/accounts')
       return { success: true }
     },
@@ -106,12 +91,9 @@ export async function archiveAccount(id: string): Promise<ErrorResponse | { succ
 
 export async function transferFunds(input: unknown): Promise<ErrorResponse | { success: true }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to transfer funds')
-      }
-      const userId = session.user.id
+    async (session) => {
+      const userId = session!.user.id
+
 
       const parsed = transferSchema.safeParse(input)
       if (!parsed.success) {
@@ -121,8 +103,9 @@ export async function transferFunds(input: unknown): Promise<ErrorResponse | { s
       const { fromAccountId, toAccountId, amount, date, note } = parsed.data
 
       // Ensure user owns both accounts
-      const fromAcc = await db.select().from(accounts).where(and(eq(accounts.id, fromAccountId), eq(accounts.userId, session.user.id))).limit(1)
-      const toAcc = await db.select().from(accounts).where(and(eq(accounts.id, toAccountId), eq(accounts.userId, session.user.id))).limit(1)
+      const fromAcc = await db.select().from(accounts).where(and(eq(accounts.id, fromAccountId), eq(accounts.userId, session!.user.id))).limit(1)
+      const toAcc = await db.select().from(accounts).where(and(eq(accounts.id, toAccountId), eq(accounts.userId, session!.user.id))).limit(1)
+
 
       if (!fromAcc.length || !toAcc.length) {
         throw new AuthError('NOT_FOUND', 'One or both accounts not found')
@@ -161,11 +144,10 @@ export async function transferFunds(input: unknown): Promise<ErrorResponse | { s
           .where(eq(accounts.id, toAccountId))
       })
 
-      await logger.info('Funds transferred', { action: 'transferFunds', from: fromAccountId, to: toAccountId, amount, userId: session.user.id })
       revalidatePath('/accounts')
       revalidatePath(`/accounts/${fromAccountId}`)
       revalidatePath(`/accounts/${toAccountId}`)
-      
+
       return { success: true }
     },
     { action: 'transferFunds' }

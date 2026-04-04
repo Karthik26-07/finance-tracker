@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { getAccountsWithBalance } from '@/lib/db/queries/accounts'
 import { AccountList } from '@/components/accounts/AccountList'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 export default async function AccountsPage() {
   const session = await auth()
@@ -15,26 +16,23 @@ export default async function AccountsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-text-primary font-display tracking-tighter">Accounts & Wallets</h1>
-          <p className="text-text-secondary text-sm font-medium opacity-80 uppercase tracking-widest font-mono mt-1 whitespace-nowrap overflow-hidden">Manage your liquidity across all nodes</p>
-        </div>
-        <div className="flex gap-3">
-          <Link 
-            href="/accounts/transfer"
-            className="px-4 py-2 bg-surface border border-border-subtle rounded-xl text-text-primary font-medium hover:bg-elevated transition-colors"
-          >
-            Transfer Funds
-          </Link>
-          <Link 
-            href="/accounts/new"
-            className="px-4 py-2 bg-linear-to-r from-primary to-primary-container text-white rounded-xl font-medium hover:opacity-90 transition-opacity"
-          >
-            + Add Account
-          </Link>
-        </div>
-      </div>
+      <PageHeader 
+        title="Accounts & Wallets"
+        subtitle="Manage your liquidity across all nodes"
+      >
+        <Link 
+          href="/accounts/transfer"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-surface border border-border/60 rounded-2xl text-xs font-bold text-text-primary hover:bg-highlight transition-all active:scale-95 shadow-sm"
+        >
+          Transfer Funds
+        </Link>
+        <Link 
+          href="/accounts/new"
+          className="flex items-center justify-center gap-2 px-5 py-2.5 bg-linear-to-br from-primary to-primary-container text-white rounded-2xl text-xs font-bold hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95"
+        >
+          + Add Account
+        </Link>
+      </PageHeader>
 
       <AccountList accounts={accounts} />
     </div>

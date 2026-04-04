@@ -1,30 +1,26 @@
 'use server'
 
-import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
+
 import { transactions, accounts, categories } from '@/lib/db/schema'
 import { createTransactionSchema, updateTransactionSchema, bulkDeleteSchema, ImportTransactionRow } from '@/lib/validations/transactions'
 import { eq, sql, and, inArray, or } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
-import { logger } from '@/lib/logger'
 import { executeServerAction } from '@/lib/server-action-middleware'
 import { AuthError, ValidationError, ErrorResponse } from '@/lib/errors'
 
+
 export async function createTransaction(input: unknown): Promise<ErrorResponse | { success: true, id: string }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to create a transaction')
-      }
-
+    async (session) => {
       const parsed = createTransactionSchema.safeParse(input)
       if (!parsed.success) {
         throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid transaction data')
       }
 
       const data = parsed.data
-      const userId = session.user.id
+      const userId = session!.user.id
+
 
       // 1. Verify user owns the account
       const [account] = await db.select().from(accounts).where(and(eq(accounts.id, data.accountId), eq(accounts.userId, userId))).limit(1)
@@ -72,7 +68,6 @@ export async function createTransaction(input: unknown): Promise<ErrorResponse |
         }
       })
 
-      await logger.info('Transaction created', { action: 'createTransaction', transactionId: newTxId, userId })
       revalidatePath('/transactions')
       revalidatePath('/accounts')
       revalidatePath(`/accounts/${data.accountId}`)
@@ -85,12 +80,9 @@ export async function createTransaction(input: unknown): Promise<ErrorResponse |
 
 export async function importTransactions(accountId: string, rows: ImportTransactionRow[]): Promise<ErrorResponse | { success: true, count: number }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to import transactions')
-      }
-      const userId = session.user.id
+    async (session) => {
+      const userId = session!.user.id
+
 
       // 1. Verify user owns account
       const [account] = await db.select().from(accounts).where(and(eq(accounts.id, accountId), eq(accounts.userId, userId))).limit(1)
@@ -130,7 +122,6 @@ export async function importTransactions(accountId: string, rows: ImportTransact
         }).where(eq(accounts.id, accountId))
       })
 
-      await logger.info('Transactions imported', { action: 'importTransactions', count: rows.length, userId })
       revalidatePath('/transactions')
       revalidatePath('/accounts')
 
@@ -142,19 +133,15 @@ export async function importTransactions(accountId: string, rows: ImportTransact
 
 export async function updateTransaction(id: string, input: unknown): Promise<ErrorResponse | { success: true }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to update transaction')
-      }
-
+    async (session) => {
       const parsed = updateTransactionSchema.safeParse(input)
       if (!parsed.success) {
         throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid transaction data')
       }
 
       const data = parsed.data
-      const userId = session.user.id
+      const userId = session!.user.id
+
 
       // 1. Verify user owns the transaction
       const [existingTx] = await db.select().from(transactions).where(and(eq(transactions.id, id), eq(transactions.userId, userId))).limit(1)
@@ -212,7 +199,6 @@ export async function updateTransaction(id: string, input: unknown): Promise<Err
         }).where(eq(transactions.id, id))
       })
 
-      await logger.info('Transaction updated', { action: 'updateTransaction', transactionId: id, userId })
       revalidatePath('/transactions')
       revalidatePath('/accounts')
 
@@ -224,13 +210,9 @@ export async function updateTransaction(id: string, input: unknown): Promise<Err
 
 export async function deleteTransaction(id: string): Promise<ErrorResponse | { success: true }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to delete transaction')
-      }
+    async (session) => {
+      const userId = session!.user.id
 
-      const userId = session.user.id
 
       // 1. Verify user owns transaction
       const [existingTx] = await db.select().from(transactions).where(and(eq(transactions.id, id), eq(transactions.userId, userId))).limit(1)
@@ -259,7 +241,6 @@ export async function deleteTransaction(id: string): Promise<ErrorResponse | { s
         await tx.delete(transactions).where(eq(transactions.id, id))
       })
 
-      await logger.info('Transaction deleted', { action: 'deleteTransaction', transactionId: id, userId })
       revalidatePath('/transactions')
       revalidatePath('/accounts')
 
@@ -271,19 +252,15 @@ export async function deleteTransaction(id: string): Promise<ErrorResponse | { s
 
 export async function bulkDeleteTransactions(input: unknown): Promise<ErrorResponse | { success: true }> {
   return executeServerAction(
-    async () => {
-      const session = await auth()
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Please log in to delete transactions')
-      }
-
+    async (session) => {
       const parsed = bulkDeleteSchema.safeParse(input)
       if (!parsed.success) {
         throw new ValidationError(parsed.error.issues[0]?.message ?? 'Invalid selection')
       }
 
       const { ids } = parsed.data
-      const userId = session.user.id
+      const userId = session!.user.id
+
 
       // 1. Verify user owns all transactions
       const existingTxs = await db.select().from(transactions).where(and(inArray(transactions.id, ids), eq(transactions.userId, userId)))
@@ -314,7 +291,6 @@ export async function bulkDeleteTransactions(input: unknown): Promise<ErrorRespo
         await tx.delete(transactions).where(and(inArray(transactions.id, ids), eq(transactions.userId, userId)))
       })
 
-      await logger.info('Transactions bulk deleted', { action: 'bulkDeleteTransactions', count: ids.length, userId })
       revalidatePath('/transactions')
       revalidatePath('/accounts')
 

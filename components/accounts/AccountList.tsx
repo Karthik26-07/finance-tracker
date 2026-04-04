@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { AccountCard } from './AccountCard'
 import { Account } from '@/types'
 import { Wallet } from 'lucide-react'
@@ -10,6 +10,12 @@ interface AccountListProps {
 }
 
 export function AccountList({ accounts }: AccountListProps) {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   if (accounts.length === 0) {
     return (
       <div className="text-center p-12 border border-dashed border-border-subtle rounded-3xl bg-surface/50">
@@ -21,10 +27,14 @@ export function AccountList({ accounts }: AccountListProps) {
 
   // Calculate Net Worth
   const totalBalance = accounts.reduce((acc, account) => acc + parseFloat(account.balance || '0'), 0)
-  const formattedNetWorth = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-  }).format(totalBalance)
+  
+  const formatNetWorth = (val: number) => {
+    if (!isMounted) return `₹${val.toFixed(2)}`
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(val)
+  }
 
   return (
     <div className="space-y-8">
@@ -34,7 +44,7 @@ export function AccountList({ accounts }: AccountListProps) {
            <Wallet size={120} className="text-primary" />
         </div>
         <p className="text-[10px] uppercase tracking-widest text-text-secondary font-black font-mono mb-2">Aggregate Net Worth</p>
-        <h2 className="text-4xl font-black text-text-primary tabular-nums tracking-tighter relative z-10">{formattedNetWorth}</h2>
+        <h2 className="text-4xl font-black text-text-primary tabular-nums tracking-tighter relative z-10">{formatNetWorth(totalBalance)}</h2>
         <p className="text-xs text-text-muted mt-2 font-medium opacity-70">Calculated across {accounts.length} active nodes</p>
       </div>
 

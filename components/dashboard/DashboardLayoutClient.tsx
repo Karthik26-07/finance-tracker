@@ -6,6 +6,7 @@ import { Menu, X, Bell, LogOut, Search, User, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import { usePathname } from "next/navigation";
+import { logout } from "@/actions/auth";
 import Link from "next/link";
 
 interface DashboardLayoutClientProps {
@@ -28,11 +29,16 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
   }, [pathname]);
 
   const handleLogout = async () => {
-    // Perform actual logout logic
-    const response = await fetch("/api/auth/signout", { method: "POST" });
-    if (response.ok) {
-        window.location.href = "/login";
+    // Use the logout server action which handles CSRF and session clearing properly
+    const result = await logout();
+    
+    if (result && "error" in result) {
+      console.error("Logout failed:", result.error);
+      return;
     }
+
+    // Redirect to login page after successful logout
+    window.location.href = "/login";
   };
 
   const getPageTitle = (path: string) => {
@@ -84,31 +90,37 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
       <main className="flex-1 lg:ml-75 flex flex-col w-full overflow-hidden">
         {/* Top bar */}
         <header className="h-20 bg-surface/80 backdrop-blur-lg flex items-center justify-between px-4 lg:px-10 border-b border-border/10 sticky top-0 z-40 transition-all">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
             <button 
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2.5 text-text-secondary hover:text-text-primary hover:bg-highlight/50 transition-all rounded-xl"
+              className="lg:hidden p-2.5 text-text-secondary hover:text-text-primary hover:bg-highlight/50 transition-all rounded-xl shrink-0"
+              aria-label="Open menu"
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="hidden sm:block">
-               <h2 className="text-xl font-bold text-text-primary font-display tracking-tight leading-none">
+            <div className="flex flex-col min-w-0">
+               <h2 className="text-lg sm:text-xl font-bold text-text-primary font-display tracking-tight leading-none truncate">
                 {getPageTitle(pathname)}
               </h2>
-              <div className="flex items-center gap-1.5 mt-1">
-                 <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
-                 <span className="text-[10px] uppercase font-bold text-text-secondary/50 tracking-wider">Live System</span>
+              <div className="flex items-center gap-1.5 mt-1 overflow-hidden">
+                 <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse shrink-0" />
+                 <span className="text-[9px] sm:text-[10px] uppercase font-bold text-text-secondary/50 tracking-wider truncate">Live System — Real-time</span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-3 lg:gap-6">
             {/* Search - Desktop */}
-            <div className="hidden lg:flex items-center bg-elevated/50 border border-border/30 rounded-2xl px-4 py-2 text-text-muted hover:border-primary/30 transition-all cursor-text gap-3 min-w-75">
+            <div className="hidden md:flex items-center bg-elevated/40 border border-border/20 rounded-2xl px-4 py-2 text-text-muted hover:border-primary/30 transition-all cursor-text gap-3 min-w-40 xl:min-w-75">
               <Search className="w-4 h-4" />
-              <span className="text-sm font-medium">Search for transactions...</span>
-              <kbd className="ml-auto px-2 py-0.5 rounded-md bg-highlight text-[10px] font-bold border border-border/50">⌘K</kbd>
+              <span className="text-sm font-medium truncate">Search logs...</span>
+              <kbd className="ml-auto hidden xl:inline-flex px-2 py-0.5 rounded-md bg-highlight text-[10px] font-bold border border-border/50">⌘K</kbd>
             </div>
+
+            {/* Mobile Search Icon */}
+            <button className="md:hidden p-2.5 text-text-secondary/70 hover:text-text-primary hover:bg-highlight/50 transition-all rounded-xl">
+              <Search className="w-5 h-5" />
+            </button>
 
             <div className="flex items-center gap-2 lg:gap-4 h-10 pr-1 border-r border-border/10">
                 <button className="p-2.5 text-text-secondary/70 hover:text-text-primary hover:bg-highlight/50 transition-all rounded-xl relative group">

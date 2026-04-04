@@ -43,9 +43,9 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background px-4 py-12">
-      <div className="mx-auto grid max-w-275 gap-8 xl:grid-cols-[0.95fr_1.05fr]">
-        <section className="hidden rounded-4xl bg-linear-to-br from-primary to-primary-container p-10 text-white shadow-ambient xl:block">
+    <div className="min-h-screen bg-background px-4 py-8 sm:py-12">
+      <div className="mx-auto grid max-w-275 gap-6 sm:gap-8 lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="hidden rounded-4xl bg-linear-to-br from-primary to-primary-container p-8 sm:p-10 text-white shadow-ambient lg:block">
           <div className="space-y-10">
             <div className="inline-flex items-center gap-3 rounded-full bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em]">
               FinTrack
@@ -102,78 +102,80 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <div className="space-y-2">
-              <label
-                htmlFor="name"
-                className="block text-sm font-semibold text-text-primary"
-              >
-                Full name
-              </label>
-              <input
-                id="name"
-                type="text"
-                {...registerForm("name")}
-                className="w-full rounded-full border border-border-subtle bg-surface px-5 py-4 text-text-primary placeholder:text-text-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="John Doe"
-                disabled={loading}
-              />
-              {errors.name && (
-                <p className="text-sm text-accent-danger">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label
+                  htmlFor="name"
+                  className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1"
+                >
+                  Full name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  {...registerForm("name")}
+                  className="w-full rounded-2xl border border-border/60 bg-surface/50 backdrop-blur-md px-4 py-4 text-text-primary placeholder:text-text-muted/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-medium"
+                  placeholder="John Doe"
+                  disabled={loading}
+                />
+                {errors.name && (
+                  <p className="text-xs text-accent-danger font-medium ml-1">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="block text-sm font-semibold text-text-primary"
-              >
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                {...registerForm("email")}
-                className="w-full rounded-full border border-border-subtle bg-surface px-5 py-4 text-text-primary placeholder:text-text-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="name@example.com"
-                disabled={loading}
-              />
-              {errors.email && (
-                <p className="text-sm text-accent-danger">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <label
+                  htmlFor="email"
+                  className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1"
+                >
+                  Email address
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  {...registerForm("email")}
+                  className="w-full rounded-2xl border border-border/60 bg-surface/50 backdrop-blur-md px-4 py-4 text-text-primary placeholder:text-text-muted/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-medium"
+                  placeholder="name@example.com"
+                  disabled={loading}
+                />
+                {errors.email && (
+                  <p className="text-xs text-accent-danger font-medium ml-1">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="password"
-                className="block text-sm font-semibold text-text-primary"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                {...registerForm("password")}
-                className="w-full rounded-full border border-border-subtle bg-surface px-5 py-4 text-text-primary placeholder:text-text-secondary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                placeholder="At least 8 characters"
-                disabled={loading}
-              />
-              {errors.password && (
-                <p className="text-sm text-accent-danger">
-                  {errors.password.message}
-                </p>
-              )}
+              <div className="space-y-2">
+                <label
+                  htmlFor="password"
+                  className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1"
+                >
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  {...registerForm("password")}
+                  className="w-full rounded-2xl border border-border/60 bg-surface/50 backdrop-blur-md px-4 py-4 text-text-primary placeholder:text-text-muted/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-medium"
+                  placeholder="At least 8 characters"
+                  disabled={loading}
+                />
+                {errors.password && (
+                  <p className="text-xs text-accent-danger font-medium ml-1">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-full bg-primary px-6 py-4 text-sm font-semibold text-white shadow-lg shadow-primary/20 transition hover:bg-primary-container disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full rounded-2xl bg-linear-to-r from-primary to-primary-container px-4 py-4 text-base font-bold text-white shadow-xl shadow-primary/20 transition hover:brightness-110 active:brightness-95 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Creating account..." : "Create Account"}
+              {loading ? "Initializing Profile..." : "Construct Account"}
             </button>
           </form>
 

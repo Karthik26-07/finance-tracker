@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { getReportsData } from '@/lib/db/queries/reports'
 import { MonthlyFlowChart, CategoryBreakdownReport, CashFlowTrendChart } from '@/components/reports/ReportCharts'
 import { OverallStatsSummary } from '@/components/reports/OverallStatsSummary'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { SpendingListReport, TaxPrepReport } from '@/components/reports/SpecializedReports'
 import { 
   BarChart3 as BarChartIcon, 
@@ -42,30 +43,20 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
   ]
 
   return (
-    <div className="max-w-full mx-auto px-4 py-8 space-y-12 animate-in fade-in duration-700">
-      {/* Premium Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-center gap-6">
-          <div className="w-2 h-16 bg-primary rounded-full hidden md:block shadow-sm shadow-primary/20" />
-          <div>
-            <h1 className="text-3xl font-black tracking-tighter text-text-primary font-display mb-1 flex items-center gap-4">
-               {tabs.find(t => t.id === activeTab)?.label} Report
-            </h1>
-            <p className="text-text-secondary text-sm font-medium opacity-80 uppercase tracking-widest font-mono">Insight-driven financial engineering</p>
-          </div>
-        </div>
-        
-        <div className="flex gap-3">
-           <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-surface border border-border/60 rounded-2xl text-xs font-bold text-text-primary hover:bg-highlight transition-all active:scale-95 shadow-sm">
-              <DownloadIcon size={14} className="text-primary" />
-              Download PDF
-           </button>
-           <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-linear-to-br from-primary to-primary-container text-white rounded-2xl text-xs font-bold hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95">
-              <FilterIcon size={14} />
-              Customize Range
-           </button>
-        </div>
-      </div>
+    <div className="space-y-12 animate-in fade-in duration-700">
+      <PageHeader 
+        title={`${tabs.find(t => t.id === activeTab)?.label} Report`}
+        subtitle="Insight-driven financial engineering"
+      >
+        <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-surface border border-border/60 rounded-2xl text-xs font-bold text-text-primary hover:bg-highlight transition-all active:scale-95 shadow-sm">
+          <DownloadIcon size={14} className="text-primary" />
+          Download PDF
+        </button>
+        <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-linear-to-br from-primary to-primary-container text-white rounded-2xl text-xs font-bold hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95">
+          <FilterIcon size={14} />
+          Customize Range
+        </button>
+      </PageHeader>
 
       {/* Optimized Nav Tabs */}
       <div className="flex items-center gap-2 bg-highlight/30 p-1.5 rounded-2xl w-fit border border-border/40">

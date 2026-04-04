@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { getDashboardData } from '@/lib/db/queries/dashboard'
 import { SummaryStats } from '@/components/dashboard/SummaryStats'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts'
 import { TransactionItem } from '@/components/transactions/TransactionItem'
 import { ArrowRight, History, BarChart3, TrendingUp } from 'lucide-react'
@@ -18,38 +19,23 @@ export default async function DashboardPage() {
   const data = await getDashboardData(userId)
 
   return (
-    <div className="max-w-full mx-auto px-4 py-8 space-y-12 animate-in fade-in duration-500">
-      {/* Header with Greeting and Context */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-black tracking-tighter text-text-primary font-display mb-2">
-            Welcome back, {session.user.name?.split(' ')[0] || 'Explorer'}
-          </h1>
-          <div className="flex items-center gap-3">
-             <div className="flex -space-x-2">
-                <span className="w-6 h-6 rounded-full bg-secondary border-2 border-surface flex items-center justify-center text-[10px] font-bold text-white shadow-sm ring-1 ring-secondary/20">₹</span>
-                <span className="w-6 h-6 rounded-full bg-primary border-2 border-surface flex items-center justify-center text-[10px] font-bold text-white shadow-sm ring-1 ring-primary/20">#</span>
-             </div>
-             <p className="text-text-secondary text-sm font-medium opacity-80 uppercase tracking-widest font-mono">
-                {`Dashboard / Your financial summary`}
-             </p>
-          </div>
-        </div>
-        
-        <div className="flex gap-3">
-           <Link href="/reports">
-              <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-surface border border-border/60 rounded-2xl text-xs font-bold text-text-primary hover:bg-highlight transition-all active:scale-95 shadow-sm">
-                 <BarChart3 size={14} className="text-primary" />
-                 View Detailed Reports
-              </button>
-           </Link>
-           <Link href="/transactions/new">
-              <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-linear-to-br from-primary to-primary-container text-white rounded-2xl text-xs font-bold hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95">
-                 Add Record
-              </button>
-           </Link>
-        </div>
-      </div>
+    <div className="space-y-12 animate-in fade-in duration-700">
+      <PageHeader 
+        title={`Welcome back, ${session.user.name?.split(' ')[0] || 'Explorer'}`}
+        subtitle="Dashboard / Your financial summary"
+      >
+        <Link href="/reports">
+          <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-surface border border-border/60 rounded-2xl text-xs font-bold text-text-primary hover:bg-highlight transition-all active:scale-95 shadow-sm">
+            <BarChart3 size={14} className="text-primary" />
+            View Detailed Reports
+          </button>
+        </Link>
+        <Link href="/transactions/new">
+          <button className="flex items-center justify-center gap-2 px-5 py-2.5 bg-linear-to-br from-primary to-primary-container text-white rounded-2xl text-xs font-bold hover:shadow-lg hover:shadow-primary/30 transition-all active:scale-95">
+            + Add Record
+          </button>
+        </Link>
+      </PageHeader>
 
       {/* Main Stats Summary Cards */}
       <SummaryStats data={data.summary} />
