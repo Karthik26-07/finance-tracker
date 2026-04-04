@@ -14,6 +14,7 @@ import { createCategory, updateCategory } from "@/actions/categories";
 import { EmojiPicker } from "@/components/ui/EmojiPicker";
 import { ChevronDown, Smile, Hash, Palette, X } from "lucide-react";
 import { toast } from "@/lib/store/useToast";
+import { ConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 
 interface CategoryFormProps {
   initialData?: Partial<CreateCategoryInput>;
@@ -34,6 +35,8 @@ export function CategoryForm({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [formData, setFormData] = useState<CreateCategoryInput | null>(null);
 
   const isEditing = !!categoryId;
 
@@ -53,6 +56,7 @@ export function CategoryForm({
       color: "#003178",
       icon: "📁",
       parentId: null,
+      description: "",
     },
   });
 
@@ -61,12 +65,19 @@ export function CategoryForm({
   const watchedIcon = watch("icon");
 
   const onSubmit = (data: CreateCategoryInput) => {
+    setFormData(data);
+    setShowConfirm(true);
+  };
+
+  const onConfirmAction = () => {
+    if (!formData) return;
+    setShowConfirm(false);
     setError(null);
     startTransition(async () => {
       try {
         const result = isEditing
-          ? await updateCategory(categoryId, data)
-          : await createCategory(data);
+          ? await updateCategory(categoryId, formData)
+          : await createCategory(formData);
 
         if (result && "error" in result) {
           setError(result.error);
@@ -108,7 +119,7 @@ export function CategoryForm({
           </label>
           <input
             {...register("name")}
-            className="w-full px-4 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm"
+            className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             placeholder="e.g. Health & Fitness"
           />
           {errors.name && (
@@ -123,10 +134,10 @@ export function CategoryForm({
             <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">
               Type
             </label>
-            <div className="relative shadow-sm rounded-xl overflow-hidden">
+            <div className="relative rounded-xl overflow-hidden">
               <select
                 {...register("type")}
-                className="w-full pl-4 pr-10 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
+                className="w-full pl-4 pr-10 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
               >
                 <option value="expense">Expense</option>
                 <option value="income">Income</option>
@@ -143,10 +154,10 @@ export function CategoryForm({
             <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">
               Parent Category
             </label>
-            <div className="relative shadow-sm rounded-xl overflow-hidden">
+            <div className="relative rounded-xl overflow-hidden">
               <select
                 {...register("parentId")}
-                className="w-full pl-4 pr-10 py-3 rounded-xl border border-border bg-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
+                className="w-full pl-4 pr-10 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none"
               >
                 <option value="">None (Top Level)</option>
                 {categories
@@ -165,6 +176,18 @@ export function CategoryForm({
           </div>
         </div>
 
+        <div>
+          <label className="block text-[11px] font-bold text-text-muted uppercase tracking-widest mb-1.5 ml-1">
+            Description
+          </label>
+          <textarea
+            {...register("description")}
+            rows={2}
+            className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm resize-none"
+            placeholder="Structure your audit logic with a description..."
+          />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* Accent Color Section */}
           <div className="space-y-1.5">
@@ -174,7 +197,7 @@ export function CategoryForm({
                 Color
               </label>
             </div>
-            <div className="flex items-center gap-3 bg-highlight/30 p-2.5 rounded-2xl border border-border/50 transition-all hover:border-primary/30 shadow-sm">
+            <div className="flex items-center gap-3 bg-highlight/10 p-2.5 rounded-2xl border border-border/30 transition-all hover:border-primary/30">
               <div className="relative group shrink-0">
                 <input
                   type="color"
@@ -208,11 +231,11 @@ export function CategoryForm({
                 Icon
               </label>
             </div>
-            <div className="flex items-center gap-3 bg-highlight/30 p-2.5 rounded-2xl border border-border/50 transition-all hover:border-primary/30 relative shadow-sm">
+            <div className="flex items-center gap-3 bg-highlight/10 p-2.5 rounded-2xl border border-border/30 transition-all hover:border-primary/30 relative">
               <button
                 type="button"
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className="w-11 h-11 flex items-center justify-center bg-surface rounded-xl text-2xl border border-border shadow-sm hover:scale-105 active:scale-95 transition-all shrink-0"
+                className="w-11 h-11 flex items-center justify-center bg-background rounded-xl text-2xl border border-border hover:scale-105 active:scale-95 transition-all shrink-0"
               >
                 {watchedIcon || "📁"}
               </button>
@@ -231,7 +254,7 @@ export function CategoryForm({
               </div>
 
               {showEmojiPicker && (
-                <div className="absolute bottom-full left-0 mb-3 w-65 h-64 bg-surface border border-border rounded-2xl shadow-2xl z-60 flex flex-col p-3 animate-in zoom-in-90 slide-in-from-bottom-2 duration-200">
+                <div className="absolute bottom-full left-0 mb-3 w-65 h-64 bg-surface border border-border/20 rounded-2xl z-60 flex flex-col p-3 animate-in zoom-in-90 slide-in-from-bottom-2 duration-200">
                   <div className="flex items-center justify-between mb-3 px-1">
                     <h3 className="font-bold text-xs uppercase tracking-wider text-text-secondary">
                       Library
@@ -269,7 +292,7 @@ export function CategoryForm({
         <button
           type="submit"
           disabled={isPending}
-          className="flex-1 px-4 py-3.5 bg-linear-to-r from-primary to-primary-container text-white rounded-xl font-bold hover:brightness-110 active:brightness-95 disabled:opacity-70 transition-all shadow-lg hover:shadow-primary/20 active:scale-[0.98]"
+          className="flex-1 px-4 py-3.5 bg-primary text-white rounded-xl font-bold hover:brightness-110 active:brightness-95 disabled:opacity-70 transition-all active:scale-[0.98]"
         >
           {isPending
             ? "Saving..."
@@ -278,6 +301,19 @@ export function CategoryForm({
               : "Create Category"}
         </button>
       </div>
+      <ConfirmationDialog
+        isOpen={showConfirm}
+        title={isEditing ? "Update Category?" : "Create Category?"}
+        description={
+            isEditing 
+            ? "Are you sure you want to update this category's details?" 
+            : "Confirm creating this new category with all provided details."
+        }
+        confirmText={isEditing ? "Update" : "Create"}
+        variant="info"
+        onConfirm={onConfirmAction}
+        onCancel={() => setShowConfirm(false)}
+      />
     </form>
   );
 }

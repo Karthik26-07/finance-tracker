@@ -8,6 +8,7 @@ import { createTransactionSchema, CreateTransactionInput, updateTransactionSchem
 import { createTransaction, updateTransaction } from '@/actions/transactions'
 import { Account, Category } from '@/lib/db/schema'
 import { toast } from '@/lib/store/useToast'
+import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog'
 
 interface TransactionFormProps {
   initialData?: Partial<CreateTransactionInput>
@@ -29,6 +30,8 @@ export function TransactionForm({
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [formData, setFormData] = useState<CreateTransactionInput | null>(null)
   
   const isEditing = !!transactionId
 
@@ -50,12 +53,19 @@ export function TransactionForm({
   const type = watch('type')
 
   const onSubmit = (data: CreateTransactionInput) => {
+    setFormData(data)
+    setShowConfirm(true)
+  }
+
+  const onConfirmAction = () => {
+    if (!formData) return
+    setShowConfirm(false)
     setError(null)
     startTransition(async () => {
       try {
         const result = isEditing 
-          ? await updateTransaction(transactionId, data)
-          : await createTransaction(data)
+          ? await updateTransaction(transactionId, formData)
+          : await createTransaction(formData)
           
         if (result && 'error' in result) {
           setError(result.error)
@@ -239,6 +249,19 @@ export function TransactionForm({
           {isPending ? 'Saving...' : (isEditing ? 'Update Transaction' : 'Record Transaction')}
         </button>
       </div>
+      <ConfirmationDialog
+        isOpen={showConfirm}
+        title={isEditing ? "Update Transaction?" : "Record Transaction?"}
+        description={
+            isEditing 
+            ? "Are you sure you want to update this transaction? This will adjust your account balances accordingly." 
+            : "Confirm recording this transaction. Your account balances will be updated immediately."
+        }
+        confirmText={isEditing ? "Update" : "Confirm"}
+        variant="info"
+        onConfirm={onConfirmAction}
+        onCancel={() => setShowConfirm(false)}
+      />
     </form>
   )
 }

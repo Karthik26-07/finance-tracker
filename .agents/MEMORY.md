@@ -15,4 +15,6 @@ Do not ingest all documentation files in every session.
 - **Reference Docs**: For any Next.js 15 App Router API or feature doubts, refer strictly to the `.next-docs/` local directory rather than hallucinating outdated versions.
 - **Design System**: Defined in `docs/04-ui-design-plan.md`
 
+- **UX Requirements**: All Add, Edit, Delete, and Update operations MUST require explicit user confirmation via the `ConfirmationDialog` component before processing.
+
 Maintain this token-efficient workflow strictly.

@@ -36,7 +36,7 @@ export default async function GroupsPage({ searchParams }: GroupsPageProps) {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 animate-in fade-in duration-700">
+    <div className="max-w-full mx-auto px-4 py-8 animate-in fade-in duration-700">
       {/* Premium Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-12">
         <div className="flex items-center gap-6">

@@ -42,7 +42,7 @@ export default async function ReportsPage({ searchParams }: ReportsPageProps) {
   ]
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-12 animate-in fade-in duration-700">
+    <div className="max-w-full mx-auto px-4 py-8 space-y-12 animate-in fade-in duration-700">
       {/* Premium Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-6">

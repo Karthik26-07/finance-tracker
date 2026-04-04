@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { transferSchema, TransferInput } from '@/lib/validations/accounts'
 import { transferFunds } from '@/actions/accounts'
 import { Account } from '@/types'
+import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog'
 
 interface TransferFormProps {
   accounts: Account[]
@@ -17,6 +18,8 @@ export function TransferForm({ accounts, onSuccess }: TransferFormProps) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [formData, setFormData] = useState<TransferInput | null>(null)
 
   const { register, handleSubmit, formState: { errors } } = useForm<TransferInput>({
     resolver: zodResolver(transferSchema) as Resolver<TransferInput>,
@@ -28,10 +31,17 @@ export function TransferForm({ accounts, onSuccess }: TransferFormProps) {
   // Exclude inactive accounts if necessary, here we assume accounts prop is already filtered
   
   const onSubmit = (data: TransferInput) => {
+    setFormData(data)
+    setShowConfirm(true)
+  }
+
+  const onConfirmAction = () => {
+    if (!formData) return
+    setShowConfirm(false)
     setError(null)
     startTransition(async () => {
       try {
-        const result = await transferFunds(data)
+        const result = await transferFunds(formData)
         if (result && 'error' in result) {
           setError(result.error)
           return
@@ -129,6 +139,15 @@ export function TransferForm({ accounts, onSuccess }: TransferFormProps) {
           {isPending ? 'Processing...' : 'Transfer Funds'}
         </button>
       </div>
+      <ConfirmationDialog
+        isOpen={showConfirm}
+        title="Transfer Funds?"
+        description="Are you sure you want to transfer these funds? This will update both account balances immediately."
+        confirmText="Transfer"
+        variant="info"
+        onConfirm={onConfirmAction}
+        onCancel={() => setShowConfirm(false)}
+      />
     </form>
   )
 }

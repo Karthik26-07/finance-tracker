@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, boolean, timestamp, pgEnum, AnyPgColumn } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, boolean, timestamp, pgEnum, AnyPgColumn, text } from 'drizzle-orm/pg-core'
 import { type InferSelectModel, type InferInsertModel } from 'drizzle-orm'
 import { users } from './users'
 
@@ -12,6 +12,7 @@ export const categories = pgTable('categories', {
   color:    varchar('color', { length: 7 }),
   type:     categoryTypeEnum('type').notNull(),
   parentId: uuid('parent_id').references((): AnyPgColumn => categories.id),
+  description: text('description'),
   isSystem: boolean('is_system').default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 })

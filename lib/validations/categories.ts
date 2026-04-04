@@ -11,6 +11,7 @@ const baseFields = {
     (val) => (val === '' ? null : val),
     z.string().uuid('Invalid parent category ID').optional().nullable()
   ),
+  description: z.string().max(255, 'Description is too long').optional().nullable(),
 }
 
 export const createCategorySchema = z.object(baseFields)

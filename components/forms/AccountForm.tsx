@@ -25,6 +25,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { toast } from "@/lib/store/useToast";
+import { ConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 
 interface AccountFormProps {
   initialData?: Partial<CreateAccountInput>;
@@ -43,6 +44,8 @@ export function AccountForm({
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [formData, setFormData] = useState<CreateAccountInput | null>(null);
 
   const isEditing = !!accountId;
 
@@ -70,12 +73,19 @@ export function AccountForm({
   const watchedType = watch("type");
 
   const onSubmit = (data: CreateAccountInput) => {
+    setFormData(data);
+    setShowConfirm(true);
+  };
+
+  const onConfirmAction = () => {
+    if (!formData) return;
+    setShowConfirm(false);
     setError(null);
     startTransition(async () => {
       try {
         const result = isEditing
-          ? await updateAccount(accountId, data)
-          : await createAccount(data);
+          ? await updateAccount(accountId, formData)
+          : await createAccount(formData);
 
         if (result && "error" in result) {
           setError(result.error);
@@ -312,6 +322,19 @@ export function AccountForm({
               : "Create Account"}
         </button>
       </div>
+      <ConfirmationDialog
+        isOpen={showConfirm}
+        title={isEditing ? "Update Account?" : "Create Account?"}
+        description={
+            isEditing 
+            ? "Are you sure you want to update this account's details?" 
+            : "Confirm creating this new account with all provided details."
+        }
+        confirmText={isEditing ? "Update" : "Create"}
+        variant="info"
+        onConfirm={onConfirmAction}
+        onCancel={() => setShowConfirm(false)}
+      />
     </form>
   );
 }

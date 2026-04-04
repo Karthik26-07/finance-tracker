@@ -1,10 +1,14 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useTransition } from 'react'
 import { Category } from '@/lib/db/schema'
 import { CategoryItem } from './CategoryItem'
 import { CategoryForm } from '../forms/CategoryForm'
-import { Plus, Search, Filter, Layers } from 'lucide-react'
+import { Plus, Search, Filter, Layers, ChevronDown, X } from 'lucide-react'
+import { CategoryExplorer } from './CategoryExplorer'
+import { ConfirmationDialog } from '../ui/ConfirmationDialog'
+import { deleteCategory } from '@/actions/categories'
+import { toast } from '@/lib/store/useToast'
 
 interface CategoryListProps {
   categories: Category[]
@@ -14,6 +18,19 @@ export function CategoryList({ categories }: CategoryListProps) {
   const [search, setSearch] = useState('')
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense' | 'both'>('all')
   const [isAdding, setIsAdding] = useState(false)
+  const [activeExplorerId, setActiveExplorerId] = useState<string | null>(null)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+  const [deletingCategory, setDeletingCategory] = useState<Category | null>(null)
+  const [isDeletingTransition, startDeletingTransition] = useTransition()
+  const [addingSubParentId, setAddingSubParentId] = useState<string | null>(null)
+
+  const activeExplorerCategory = useMemo(() => 
+    categories.find(c => c.id === activeExplorerId), 
+  [categories, activeExplorerId])
+
+  const explorerSubCategories = useMemo(() => 
+    categories.filter(c => c.parentId === activeExplorerId),
+  [categories, activeExplorerId])
 
   const filteredCategories = useMemo(() => {
     return categories.filter(c => {
@@ -23,103 +40,123 @@ export function CategoryList({ categories }: CategoryListProps) {
     })
   }, [categories, search, filterType])
 
-  // Split into parents and children for grouping
-  const topLevel = useMemo(() => filteredCategories.filter(c => !c.parentId), [filteredCategories])
-  
-  // When search is active, we flatten the view for easier finding
-  const viewMode = search ? 'flat' : 'tree'
+  const handleConfirmDelete = async () => {
+    if (!deletingCategory) return
+    
+    startDeletingTransition(async () => {
+      const result = await deleteCategory(deletingCategory.id)
+      if (result && 'error' in result) {
+        toast.error(result.error)
+      } else {
+        toast.success(`Category "${deletingCategory.name}" de-initialized`)
+        setDeletingCategory(null)
+        if (deletingCategory.id === activeExplorerId) setActiveExplorerId(null)
+      }
+    })
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap gap-4 items-center justify-between bg-surface p-4 sm:p-5 rounded-3xl border border-border shadow-ambient">
-        <div className="flex-1 min-w-60 relative group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted transition-colors group-focus-within:text-primary" size={20} />
-          <input 
-            type="text" 
-            placeholder="Search categories..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-highlight/50 border border-transparent rounded-2xl focus:border-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface transition-all"
-          />
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="relative group">
-            <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" size={18} />
-            <select 
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as 'all' | 'income' | 'expense' | 'both')}
-              className="appearance-none bg-highlight/50 pl-11 pr-10 py-3.5 rounded-2xl border border-transparent focus:border-primary/20 hover:bg-highlight focus:ring-2 focus:ring-primary focus:bg-surface transition-all outline-none"
-            >
-              <option value="all">All Types</option>
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
-              <option value="both">Multi-type</option>
-            </select>
+    <div className="space-y-8">
+      {/* Action Bar */}
+      <div className="flex flex-col lg:flex-row gap-6 items-stretch lg:items-center justify-between">
+        <div className="flex-1 flex flex-col md:flex-row items-stretch md:items-center gap-4">
+          <div className="flex-1 relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted/40 transition-colors group-focus-within:text-primary" size={16} />
+            <input 
+              type="text" 
+              placeholder="Search category nodes..." 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-11 pr-4 py-3 bg-surface border border-border/10 rounded-2xl focus:border-primary/30 focus:outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium"
+            />
           </div>
-          
-          <button 
-            onClick={() => setIsAdding(true)}
-            className="flex items-center gap-2 bg-primary text-white px-6 py-3.5 rounded-2xl hover:brightness-110 active:brightness-95 transition-all shadow-lg hover:shadow-xl active:scale-95"
-            title="Create New Category"
-          >
-            <Plus size={20} />
-            <span className="font-semibold hidden sm:inline">New Category</span>
-          </button>
+
+          <div className="flex items-center p-1 bg-surface border border-border/10 rounded-2xl gap-1">
+            {(['all', 'income', 'expense', 'both'] as const).map((type) => (
+              <button
+                key={type}
+                onClick={() => setFilterType(type)}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                  filterType === type 
+                  ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                  : 'text-text-muted hover:bg-highlight hover:text-text-primary'
+                }`}
+              >
+                <div className={`w-1.5 h-1.5 rounded-full ${
+                  filterType === type ? 'bg-white animate-pulse' : 'bg-text-muted/30'
+                }`} />
+                {type === 'all' ? 'System' : type === 'both' ? 'Hybrid' : type === 'income' ? 'Input' : 'Output'}
+              </button>
+            ))}
+          </div>
         </div>
+        
+        <button 
+          onClick={() => setIsAdding(true)}
+          className="flex items-center justify-center gap-2 bg-primary text-white px-8 py-3 rounded-2xl hover:brightness-110 active:scale-[0.98] transition-all text-[11px] font-extrabold uppercase tracking-widest whitespace-nowrap"
+        >
+          <Plus size={16} strokeWidth={3} />
+          Initialize Node
+        </button>
       </div>
 
-      <div className="space-y-3">
-        {viewMode === 'tree' ? (
-          topLevel.length > 0 ? (
-            topLevel.map(cat => (
-              <CategoryItem 
-                key={cat.id} 
-                category={cat} 
-                allCategories={categories}
-                subCategories={categories.filter(s => s.parentId === cat.id)}
-              />
-            ))
-          ) : (
-            <div className="py-24 text-center bg-surface rounded-3xl border-2 border-dashed border-border-subtle">
-              <div className="w-16 h-16 bg-highlight rounded-full flex items-center justify-center mx-auto mb-4 text-text-muted">
-                <Layers size={32} />
-              </div>
-              <h3 className="text-lg font-bold text-text-primary">No Categories Found</h3>
-              <p className="text-text-muted max-w-xs mx-auto mt-1">Start by creating a category or filter to see existing ones</p>
-            </div>
-          )
+      {/* Categories Content Grid */}
+      <div>
+        {filteredCategories.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+             {filteredCategories.map((category) => (
+                <CategoryItem 
+                  key={category.id} 
+                  category={category} 
+                  allCategories={categories}
+                  subCategories={categories.filter(sub => sub.parentId === category.id)}
+                  onExplore={() => setActiveExplorerId(category.id)}
+                />
+              ))}
+          </div>
         ) : (
-          filteredCategories.length > 0 ? (
-            filteredCategories.map(cat => (
-              <CategoryItem 
-                key={cat.id} 
-                category={cat} 
-                allCategories={categories}
-              />
-            ))
-          ) : (
-             <div className="py-24 text-center bg-surface rounded-3xl border-2 border-dashed border-border-subtle">
-               <p className="text-text-muted">No results matching &ldquo;{search}&rdquo;</p>
-             </div>
-          )
+          <div className="py-24 text-center bg-elevated/30 rounded-4xl border border-dashed border-border/10 flex flex-col items-center">
+            <div className="w-20 h-20 bg-background rounded-3xl flex items-center justify-center mb-6 text-text-muted/20">
+              <Layers size={40} />
+            </div>
+            <h3 className="text-xl font-bold text-text-primary tracking-tight">System Identity: Undefined</h3>
+            <p className="text-text-secondary/60 max-w-xs mx-auto mt-2 text-sm font-medium">
+              No categories match your request. Initialize a new node to expand your system.
+            </p>
+          </div>
         )}
       </div>
 
+      {/* Explorer Modal: High-Fidelity Deep Dive */}
+      {activeExplorerCategory && (
+        <CategoryExplorer 
+          category={activeExplorerCategory}
+          subCategories={explorerSubCategories}
+          onClose={() => setActiveExplorerId(null)}
+          onEdit={(c) => setEditingCategory(c)}
+          onDelete={(c) => setDeletingCategory(c)}
+          onAddSub={(parentId) => setAddingSubParentId(parentId)}
+        />
+      )}
+
+      {/* Creation Modal: Root Nodes */}
       {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-surface p-6 rounded-3xl shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-6">
+        <div className="fixed inset-0 z-120 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="w-full max-w-lg bg-surface p-8 rounded-[40px] border border-border/10 animate-in zoom-in-95 duration-300">
+            <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-xl font-bold">New Category</h2>
-                <p className="text-sm text-text-secondary">Structure your finance tracking</p>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-1 h-4 bg-primary rounded-full" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Node Logic</span>
+                </div>
+                <h2 className="text-2xl font-black text-text-primary tracking-tight font-display">Initialize Category</h2>
               </div>
               <button 
                 onClick={() => setIsAdding(false)} 
-                className="p-2 hover:bg-highlight rounded-xl text-text-muted"
+                className="p-2 hover:bg-highlight/50 rounded-xl text-text-muted transition-colors"
                 title="Cancel"
               >
-                ✕
+                <X size={20} />
               </button>
             </div>
             <CategoryForm 
@@ -130,6 +167,85 @@ export function CategoryList({ categories }: CategoryListProps) {
           </div>
         </div>
       )}
+
+      {/* Sub-Node Creation Modal */}
+      {addingSubParentId && (
+        <div className="fixed inset-0 z-120 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="w-full max-w-lg bg-surface p-8 rounded-[40px] border border-border/10 animate-in zoom-in-95 duration-300">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-1 h-4 bg-secondary rounded-full" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-secondary/60">Nested Architecture</span>
+                </div>
+                <h2 className="text-2xl font-black text-text-primary tracking-tight font-display">Create Sub-Node</h2>
+              </div>
+              <button 
+                onClick={() => setAddingSubParentId(null)} 
+                className="p-2 hover:bg-highlight/50 rounded-xl text-text-muted transition-colors"
+                title="Cancel"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <CategoryForm 
+              initialData={{ parentId: addingSubParentId }}
+              categories={categories.map(c => ({ id: c.id, name: c.name }))}
+              isModal
+              onSuccess={() => setAddingSubParentId(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Editing Modal */}
+      {editingCategory && (
+        <div className="fixed inset-0 z-120 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="w-full max-w-lg bg-surface p-8 rounded-[40px] border border-border/10 animate-in zoom-in-95 duration-300">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-1 h-4 bg-primary rounded-full" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Node Tuning</span>
+                </div>
+                <h2 className="text-2xl font-black text-text-primary tracking-tight font-display">Configure Node</h2>
+              </div>
+              <button 
+                onClick={() => setEditingCategory(null)} 
+                className="p-2 hover:bg-highlight/50 rounded-xl text-text-muted transition-colors"
+                title="Cancel"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <CategoryForm 
+              categoryId={editingCategory.id}
+              initialData={{ 
+                name: editingCategory.name,
+                type: editingCategory.type as 'income' | 'expense' | 'both',
+                color: editingCategory.color,
+                icon: editingCategory.icon,
+                description: editingCategory.description,
+                parentId: editingCategory.parentId
+              }}
+              categories={categories.map(c => ({ id: c.id, name: c.name }))}
+              isModal
+              onSuccess={() => setEditingCategory(null)}
+            />
+          </div>
+        </div>
+      )}
+
+      <ConfirmationDialog 
+        isOpen={!!deletingCategory}
+        title="Remove Node Strategy?"
+        description={`Are you sure you want to de-initialize "${deletingCategory?.name}"? All nested traces will be decoupled.`}
+        confirmText="De-initialize"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeletingCategory(null)}
+        variant="danger"
+      />
     </div>
   )
 }
+

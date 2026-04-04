@@ -33,6 +33,7 @@ export async function createCategory(input: unknown): Promise<ErrorResponse | { 
         color: data.color,
         type: data.type,
         parentId: data.parentId,
+        description: data.description,
         isSystem: false,
       }).returning({ id: categories.id })
 

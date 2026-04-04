@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   const data = await getDashboardData(userId)
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-12 animate-in fade-in duration-500">
+    <div className="max-w-full mx-auto px-4 py-8 space-y-12 animate-in fade-in duration-500">
       {/* Header with Greeting and Context */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
       {/* Data Deep Dive Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
          {/* Category Rankings */}
-         <div className="lg:col-span-2 p-8 bg-surface border border-border/50 rounded-[2.5rem] shadow-ambient">
+         <div className="lg:col-span-2 p-5 sm:p-8 bg-surface border border-border/50 rounded-[2.5rem] shadow-ambient">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-secondary/10 rounded-xl text-secondary">
@@ -110,15 +110,15 @@ export default async function DashboardPage() {
          </div>
 
          {/* Recent Ledger History */}
-         <div className="lg:col-span-3 p-8 bg-surface border border-border/50 rounded-[2.5rem] shadow-ambient">
-            <div className="flex items-center justify-between mb-8">
+         <div className="lg:col-span-3 p-5 sm:p-8 bg-surface border border-border/50 rounded-[2.5rem] shadow-ambient">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-4 mb-8">
                <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
+                  <div className="p-2 bg-primary/10 rounded-xl text-primary shrink-0">
                     <History size={18} />
                   </div>
                   <h3 className="text-lg font-black tracking-tight text-text-primary">Recent History</h3>
                </div>
-               <Link href="/transactions" className="group flex items-center gap-2 text-xs font-bold text-primary hover:opacity-80 transition-opacity">
+               <Link href="/transactions" className="group flex items-center gap-2 text-[10px] sm:text-xs font-bold text-primary hover:opacity-80 transition-opacity w-fit">
                   View Ledger <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                </Link>
             </div>
