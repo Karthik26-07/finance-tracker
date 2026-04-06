@@ -9,7 +9,7 @@ import {
   Landmark,
 } from "lucide-react";
 import { Account } from "@/lib/db/schema";
-import { importTransactions } from "@/actions/transactions";
+import { importTransactions } from "@/modules/transactions/transactions.action";
 import { toast } from "@/lib/store/useToast";
 import { importTransactionRowSchema } from "@/lib/validations/transactions";
 import { Modal } from "../ui/Modal";
@@ -87,10 +87,10 @@ export function CSVImportDialog({
           validatedRows.push(result.data);
         }
 
-        const result = await importTransactions(
-          selectedAccountId,
-          validatedRows,
-        );
+        const result = await importTransactions({
+          accountId: selectedAccountId,
+          transactions: validatedRows,
+        });
 
         if (result && "error" in result) {
           toast.error(result.error);

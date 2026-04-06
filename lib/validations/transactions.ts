@@ -63,8 +63,20 @@ export const transactionFilterSchema = z.object({
   sort: z.enum(['date_desc', 'date_asc', 'amount_desc', 'amount_asc']).default('date_desc'),
 })
 
+export const importTransactionsSchema = z.object({
+  accountId: z.string().uuid(),
+  transactions: z.array(z.object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    amount: z.coerce.number(),
+    category: z.string().optional().nullable(),
+    description: z.string().optional().nullable(),
+    note: z.string().optional().nullable(),
+  })),
+})
+
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>
 export type UpdateTransactionInput = z.infer<typeof updateTransactionSchema>
 export type TransactionFilters = z.infer<typeof transactionFilterSchema>
 export type BulkDeleteInput = z.infer<typeof bulkDeleteSchema>
 export type ImportTransactionRow = z.infer<typeof importTransactionRowSchema>
+export type ImportTransactionsInput = z.infer<typeof importTransactionsSchema>

@@ -1,18 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth";
-import { login } from "@/actions/auth";
+import { login } from "@/modules/auth/auth.action";
+import { toast } from "@/lib/store/useToast";
 import Link from "next/link";
+import { ActionResponse } from "@/lib/errors";
 
 export default function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
   const router = useRouter();
+  
+  // Modern React 19 approach for handling action state and pending status
+  const [state, formAction, isPending] = useActionState<ActionResponse | null, FormData>(
+    async (prevState, formData) => {
+      const result = await login(formData);
+      
+      if (result && "success" in result) {
+        toast.success("Welcome back! Accessing your dashboard...");
+        router.push("/dashboard");
+        return null;
+      }
+      
+      return result as ActionResponse;
+    },
+    null
+  );
 
   const {
     register,
@@ -22,23 +37,15 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginInput) => {
-    setError(null);
-    setLoading(true);
-
+  const onSubmit = (data: LoginInput) => {
     const formData = new FormData();
     formData.set("email", data.email);
     formData.set("password", data.password);
-
-    const result = await login(formData);
-
-    if (result && "error" in result) {
-      setError(result.error);
-      setLoading(false);
-      return;
-    }
-
-    router.push("/dashboard");
+    
+    // Trigger the action state update
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
   return (
@@ -94,9 +101,9 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {error && (
+            {state && "error" in state && (
               <div className="rounded-3xl border border-accent-danger/20 bg-accent-danger/10 p-4 text-sm text-accent-danger">
-                {error}
+                {state.error}
               </div>
             )}
 
@@ -114,7 +121,7 @@ export default function LoginPage() {
                   {...register("email")}
                   className="w-full rounded-2xl border border-border/60 bg-background/40 backdrop-blur-md px-4 py-4 text-text-primary placeholder:text-text-muted/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-medium"
                   placeholder="name@example.com"
-                  disabled={loading}
+                  disabled={isPending}
                 />
                 {errors.email && (
                   <p className="text-xs text-accent-danger font-medium ml-1">
@@ -144,7 +151,7 @@ export default function LoginPage() {
                   {...register("password")}
                   className="w-full rounded-2xl border border-border/60 bg-background/40 backdrop-blur-md px-4 py-4 text-text-primary placeholder:text-text-muted/40 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm font-medium"
                   placeholder="Enter your password"
-                  disabled={loading}
+                  disabled={isPending}
                 />
                 {errors.password && (
                   <p className="text-xs text-accent-danger font-medium ml-1">
@@ -156,10 +163,10 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={isPending}
               className="w-full rounded-2xl bg-linear-to-r from-primary to-primary-container px-4 py-4 text-base font-bold text-white shadow-xl shadow-primary/20 transition hover:brightness-110 active:brightness-95 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? "Constructing Identity..." : "Access Dashboard"}
+              {isPending ? "Constructing Identity..." : "Access Dashboard"}
             </button>
           </form>
 

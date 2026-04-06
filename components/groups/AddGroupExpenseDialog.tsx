@@ -3,7 +3,7 @@
 import React from 'react'
 import { X, Calendar, Wallet, Check, AlertCircle } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { addGroupExpense } from '@/actions/groups'
+import { addGroupExpense } from '@/modules/groups/groups.action'
 import { Group, GroupMember } from '@/types/groups'
 
 interface AddGroupExpenseDialogProps {

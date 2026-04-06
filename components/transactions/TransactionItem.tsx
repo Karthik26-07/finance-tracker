@@ -4,7 +4,7 @@ import React, { useTransition, useState } from 'react'
 import { Transaction, Account, Category } from '@/lib/db/schema'
 import { format } from 'date-fns'
 import { Edit2, Trash2 } from 'lucide-react'
-import { deleteTransaction } from '@/actions/transactions'
+import { deleteTransaction } from '@/modules/transactions/transactions.action'
 import Link from 'next/link'
 import { ConfirmationDialog } from '../ui/ConfirmationDialog'
 

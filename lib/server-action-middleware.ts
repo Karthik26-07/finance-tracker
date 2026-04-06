@@ -30,6 +30,39 @@ import { db } from './db'
 import { sessions } from './db/schema'
 import { eq, and } from 'drizzle-orm'
 
+/**
+ * Centralized security guard for server actions.
+ * Verifies session, checks for revocation, and returns the userId.
+ * Use this at the start of any protected action for maximum simplicity.
+ */
+export async function requireAuth(): Promise<string> {
+  const session = await auth()
+  
+  if (!session?.user?.id) {
+    throw new AuthError('UNAUTHORIZED', 'Authentication required')
+  }
+
+  // Session Revocation Check (DB-backed)
+  const { db } = await import('./db')
+  const { sessions } = await import('./db/schema')
+  
+  const [storedSession] = await db
+    .select()
+    .from(sessions)
+    .where(and(
+      eq(sessions.sessionToken, session.user.jti),
+      eq(sessions.revoked, false)
+    ))
+    .limit(1)
+
+  if (!storedSession) {
+    await logger.security('AUTH_REVOKED_ATTEMPT', { userId: session.user.id }, 'error')
+    throw new AuthError('UNAUTHORIZED', 'Session revoked. Please re-login.')
+  }
+
+  return session.user.id
+}
+
 export async function executeServerAction<T = any>(
   handler: (session: Session | null) => Promise<T | ErrorResponse | void>,
   context: ActionContext,
@@ -40,39 +73,17 @@ export async function executeServerAction<T = any>(
 
   try {
     // 1. Authorization check
-    session = await auth()
-    
     if (!options.isPublic) {
-      if (!session?.user?.id) {
-        throw new AuthError('UNAUTHORIZED', 'Authentication required to perform this action')
-      }
-
-      // 1b. HIGH SECURITY: DB-backed revocation check
-      // This runs in Node runtime (Server Action context), so DB queries are safe.
-      const [storedSession] = await db
-        .select()
-        .from(sessions)
-        .where(and(
-          eq(sessions.sessionToken, session.user.jti),
-          eq(sessions.revoked, false)
-        ))
-        .limit(1)
-
-      if (!storedSession) {
-        await logger.security('AUTH_ACTION_REVOKED', { 
-          action: context.action, 
-          jti: session.user.jti, 
-          userId: session.user.id 
-        }, 'error')
-        throw new AuthError('UNAUTHORIZED', 'Session has been revoked. Please log in again.')
-      }
+      await requireAuth()
+      session = await auth() // Get session again for the context, or just return it from requireAuth?
+    } else {
+       session = await auth() // Still try to get it for public actions (optional info)
     }
-
-
+    
     // 2. Execute handler
     const result = await handler(session)
 
-    // Log successful action if it's not a generic response
+    // Log successful action if it's not an error response
     const duration = Date.now() - startTime
     if (!(result && typeof result === 'object' && 'error' in result)) {
       await logger.info(`Action success: ${context.action}`, {
@@ -82,33 +93,55 @@ export async function executeServerAction<T = any>(
       })
     }
 
-    // If handler returns error, it's already been logged or needs to be handled
-    if (result && typeof result === 'object' && 'error' in result) {
-      return result as ErrorResponse
-    }
-
-    // Success
-    return result as T
+    // Success or returned error
+    return (result ?? { success: true }) as T | ErrorResponse
   } catch (error) {
-    // Global error handler - catches ALL unhandled exceptions
-    const errorResponse = await handleActionError(error, {
+    // Global error handler
+    return await handleActionError(error, {
       action: context.action,
       userId: session?.user?.id || context.userId,
     })
-
-    // Additional security logging for unexpected errors
-    if (error instanceof Error) {
-      await logger.error(error, {
-        action: context.action,
-        userId: session?.user?.id,
-        errorType: error.constructor.name,
-      })
-    }
-
-    return errorResponse
   }
 }
 
+/**
+ * Simplified factory for authenticated server actions.
+ * Automatically handles:
+ * 1. Session & Revocation checks
+ * 2. Zod validation (accepts plain objects or FormData)
+ * 3. Standardized error reporting
+ * 4. Automatic logging & performance tracking
+ */
+import { z } from 'zod'
+import { ValidationError } from './errors'
+
+export function createAuthenticatedAction<Schema extends z.ZodTypeAny, TOutput>(
+  name: string,
+  schema: Schema,
+  handler: (data: z.infer<Schema>, userId: string) => Promise<TOutput | ErrorResponse>
+) {
+  return async (input: z.infer<Schema> | FormData): Promise<TOutput | ErrorResponse> => {
+    return executeServerAction(
+      async (session) => {
+        let rawInput = input
+        
+        // Handle FormData translation automatically
+        if (input instanceof FormData) {
+          rawInput = Object.fromEntries(input.entries()) as any
+        }
+
+        const parsed = schema.safeParse(rawInput)
+        if (!parsed.success) {
+          const firstError = parsed.error.issues[0]?.message ?? 'Validation failed'
+          throw new ValidationError(firstError)
+        }
+
+        return handler(parsed.data, session!.user.id)
+      },
+      { action: name }
+    )
+  }
+}
 
 /**
  * Type-safe wrapper with automatic logging
@@ -153,3 +186,4 @@ export async function safeAction<TInput, TOutput = any>(
     })
   }
 }
+

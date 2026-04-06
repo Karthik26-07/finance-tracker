@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useActionState, startTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +10,7 @@ import {
   updateAccountSchema,
   UpdateAccountInput,
 } from "@/lib/validations/accounts";
-import { createAccount, updateAccount } from "@/actions/accounts";
+import { createAccount, updateAccount } from "@/modules/accounts/accounts.action";
 import { EmojiPicker } from "@/components/ui/EmojiPicker";
 import {
   ChevronDown,
@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/lib/store/useToast";
 import { ConfirmationDialog } from "@/components/ui/ConfirmationDialog";
+import { ActionResponse } from "@/lib/errors";
 
 interface AccountFormProps {
   initialData?: Partial<CreateAccountInput>;
@@ -41,13 +42,34 @@ export function AccountForm({
   onSuccess,
 }: AccountFormProps) {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [formData, setFormData] = useState<CreateAccountInput | null>(null);
 
   const isEditing = !!accountId;
+
+  // Modern React 19 approach
+  const [state, formAction, isPending] = useActionState<ActionResponse | null, CreateAccountInput>(
+    async (prevState, input) => {
+      const result = isEditing
+        ? await updateAccount(accountId, input)
+        : await createAccount(input);
+
+      if (result && "success" in result) {
+        toast.success(isEditing ? "Account updated" : "Account created successfully");
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.push("/accounts");
+          router.refresh();
+        }
+        return null;
+      }
+
+      return result as ActionResponse;
+    },
+    null
+  );
 
   const {
     register,
@@ -80,35 +102,9 @@ export function AccountForm({
   const onConfirmAction = () => {
     if (!formData) return;
     setShowConfirm(false);
-    setError(null);
-    startTransition(async () => {
-      try {
-        const result = isEditing
-          ? await updateAccount(accountId, formData)
-          : await createAccount(formData);
-
-        if (result && "error" in result) {
-          setError(result.error);
-          toast.error(result.error);
-          return;
-        }
-
-        toast.success(
-          isEditing ? "Account updated" : "Account created successfully",
-        );
-
-        if (onSuccess) {
-          onSuccess();
-        } else {
-          router.push("/accounts");
-          router.refresh();
-        }
-      } catch (err: unknown) {
-        const msg =
-          err instanceof Error ? err.message : "An unexpected error occurred";
-        setError(msg);
-        toast.error(msg);
-      }
+    
+    startTransition(() => {
+      formAction(formData);
     });
   };
 
@@ -129,9 +125,9 @@ export function AccountForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      {error && (
+      {state && "error" in state && (
         <div className="p-3.5 text-sm text-accent-danger bg-accent-danger/10 rounded-xl border border-accent-danger/20 animate-in fade-in slide-in-from-top-1">
-          {error}
+          {state.error}
         </div>
       )}
 

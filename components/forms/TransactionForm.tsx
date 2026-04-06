@@ -1,15 +1,16 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import React, { useState, useActionState, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { createTransactionSchema, CreateTransactionInput, updateTransactionSchema, UpdateTransactionInput } from '@/lib/validations/transactions'
-import { createTransaction, updateTransaction } from '@/actions/transactions'
+import { createTransaction, updateTransaction } from '@/modules/transactions/transactions.action'
 import { Account, Category } from '@/lib/db/schema'
 import { toast } from '@/lib/store/useToast'
 import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog'
 import { ChevronDown } from 'lucide-react'
+import { ActionResponse } from '@/lib/errors'
 
 interface TransactionFormProps {
   initialData?: Partial<CreateTransactionInput>
@@ -29,12 +30,33 @@ export function TransactionForm({
   isModal 
 }: TransactionFormProps) {
   const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
   const [showConfirm, setShowConfirm] = useState(false)
   const [formData, setFormData] = useState<CreateTransactionInput | null>(null)
   
   const isEditing = !!transactionId
+
+  // Modern React 19 approach
+  const [state, formAction, isPending] = useActionState<ActionResponse | null, CreateTransactionInput>(
+    async (prevState, input) => {
+      const result = isEditing 
+        ? await updateTransaction(transactionId, input)
+        : await createTransaction(input)
+        
+      if (result && 'success' in result) {
+        toast.success(isEditing ? 'Transaction updated' : 'Transaction recorded successfully')
+        if (onSuccess) {
+          await onSuccess()
+        } else {
+          router.push('/transactions')
+          router.refresh()
+        }
+        return null
+      }
+
+      return result as ActionResponse
+    },
+    null
+  )
 
   const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<CreateTransactionInput>({
     resolver: zodResolver(isEditing ? updateTransactionSchema : createTransactionSchema) as Resolver<CreateTransactionInput>,
@@ -61,32 +83,9 @@ export function TransactionForm({
   const onConfirmAction = () => {
     if (!formData) return
     setShowConfirm(false)
-    setError(null)
-    startTransition(async () => {
-      try {
-        const result = isEditing 
-          ? await updateTransaction(transactionId, formData)
-          : await createTransaction(formData)
-          
-        if (result && 'error' in result) {
-          setError(result.error)
-          toast.error(result.error)
-          return
-        }
-        
-        toast.success(isEditing ? 'Transaction updated' : 'Transaction recorded successfully')
-        
-        if (onSuccess) {
-          await onSuccess()
-        } else {
-          router.push('/transactions')
-          router.refresh()
-        }
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : 'An unexpected error occurred'
-        setError(msg)
-        toast.error(msg)
-      }
+    
+    startTransition(() => {
+      formAction(formData)
     })
   }
 
@@ -96,9 +95,9 @@ export function TransactionForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {error && (
+      {state && 'error' in state && (
         <div className="p-4 text-sm text-accent-danger bg-accent-danger/10 rounded-xl border border-accent-danger/20 animate-in fade-in slide-in-from-top-1">
-          {error}
+          {state.error}
         </div>
       )}
 

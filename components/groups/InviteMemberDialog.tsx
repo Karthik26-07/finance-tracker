@@ -1,9 +1,11 @@
 'use client'
 
-import React from 'react'
+import React, { useActionState, startTransition } from 'react'
 import { X, UserPlus, Mail, User, Shield } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { addMember } from '@/actions/groups'
+import { addMember } from '@/modules/groups/groups.action'
+import { ActionResponse } from '@/lib/errors'
+import { toast } from '@/lib/store/useToast'
 
 interface InviteMemberDialogProps {
   isOpen: boolean
@@ -14,22 +16,31 @@ interface InviteMemberDialogProps {
 export function InviteMemberDialog({ isOpen, onClose, groupId }: InviteMemberDialogProps) {
   const [name, setName] = React.useState('')
   const [email, setEmail] = React.useState('')
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Modern React 19 approach
+  const [state, formAction, isPending] = useActionState<ActionResponse | null, { name: string, email: string }>(
+    async (prevState, input) => {
+      const result = await addMember(groupId, input)
+      
+      if (result && 'success' in result) {
+        toast.success('Member added successfully')
+        onClose()
+        setName('')
+        setEmail('')
+        return null
+      }
+      
+      return result as ActionResponse
+    },
+    null
+  )
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      await addMember(groupId, { name, email })
-      onClose()
-      setName('')
-      setEmail('')
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setIsSubmitting(false)
-    }
+    
+    startTransition(() => {
+      formAction({ name, email })
+    })
   }
 
   return (
@@ -59,6 +70,12 @@ export function InviteMemberDialog({ isOpen, onClose, groupId }: InviteMemberDia
             </div>
 
             <form onSubmit={handleSubmit} className="p-10 space-y-6">
+              {state && "error" in state && (
+                <div className="p-4 text-xs font-bold text-accent-danger bg-accent-danger/10 rounded-2xl border border-accent-danger/20 animate-in fade-in slide-in-from-top-1">
+                  {state.error}
+                </div>
+              )}
+
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] font-mono opacity-60 px-1">Member Name</label>
                 <div className="relative group">
@@ -72,6 +89,7 @@ export function InviteMemberDialog({ isOpen, onClose, groupId }: InviteMemberDia
                      type="text"
                      value={name}
                      onChange={(e) => setName(e.target.value)}
+                     disabled={isPending}
                    />
                 </div>
               </div>
@@ -88,6 +106,7 @@ export function InviteMemberDialog({ isOpen, onClose, groupId }: InviteMemberDia
                      type="email"
                      value={email}
                      onChange={(e) => setEmail(e.target.value)}
+                     disabled={isPending}
                    />
                 </div>
               </div>
@@ -100,10 +119,10 @@ export function InviteMemberDialog({ isOpen, onClose, groupId }: InviteMemberDia
               <div className="pt-4">
                 <button 
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isPending}
                   className="w-full bg-linear-to-br from-primary to-primary-container text-white py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-[1.01] transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3"
                 >
-                  {isSubmitting ? (
+                  {isPending ? (
                     'Registering Node...'
                   ) : (
                     <><UserPlus size={18} strokeWidth={3} /> Add to Collective</>

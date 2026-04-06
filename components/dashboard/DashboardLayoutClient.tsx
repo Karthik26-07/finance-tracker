@@ -2,12 +2,13 @@
 
 import { ReactNode, useState, useEffect } from "react";
 import { SidebarContent } from "./SidebarContent";
-import { Menu, X, Bell, LogOut, Search, User, ChevronDown } from "lucide-react";
+import { Menu, X, Bell, LogOut, Search, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConfirmationDialog } from "@/components/ui/ConfirmationDialog";
 import { usePathname } from "next/navigation";
-import { logout } from "@/actions/auth";
-import Link from "next/link";
+import { logout } from "@/modules/auth/auth.action";
+import { toast } from "@/lib/store/useToast";
+import { useSession, signOut } from "next-auth/react";
 
 interface DashboardLayoutClientProps {
   children: ReactNode;
@@ -18,10 +19,22 @@ interface DashboardLayoutClientProps {
   };
 }
 
-export function DashboardLayoutClient({ children, user }: DashboardLayoutClientProps) {
+export function DashboardLayoutClient({
+  children,
+  user,
+}: DashboardLayoutClientProps) {
+  const { status } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const pathname = usePathname();
+
+  // Watch for session revocation
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      toast.warning("Session expired or revoked. Please sign in again.");
+      window.location.href = "/login";
+    }
+  }, [status]);
 
   // Close sidebar on route change
   useEffect(() => {
@@ -29,30 +42,48 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
   }, [pathname]);
 
   const handleLogout = async () => {
-    // Use the logout server action which handles CSRF and session clearing properly
+    toast.info("Terminating session...");
+
+    // Attempt server-side logout
     const result = await logout();
-    
+
+    // Handle potential errors
     if (result && "error" in result) {
-      console.error("Logout failed:", result.error);
-      return;
+      // If session is already gone, proceed; otherwise, report unexpected failure
+      const isSessionError =
+        result.error.includes("revoked") ||
+        result.error.includes("Authentication required");
+      if (!isSessionError) {
+        toast.error(`Logout failed: ${result.error}`);
+        return;
+      }
     }
 
-    // Redirect to login page after successful logout
+    // Client-side cleanup and redirect
+    toast.success("Signed out successfully.");
+    await signOut({ redirect: false });
     window.location.href = "/login";
   };
 
-  const getPageTitle = (path: string) => {
-    if (path.includes("/dashboard")) return "Overview";
-    if (path.includes("/transactions")) return "Transactions";
-    if (path.includes("/accounts")) return "Accounts";
-    if (path.includes("/categories")) return "Categories";
-    if (path.includes("/groups")) return "Group Expenses";
-    if (path.includes("/recurring")) return "Recurring Deductions";
-    if (path.includes("/budgets")) return "Budgets";
-    if (path.includes("/reports")) return "Finance Reports";
-    if (path.includes("/settings")) return "Settings";
-    return "Dashboard";
+  const ROUTE_TITLE_MAP: Record<string, string> = {
+    "/dashboard": "Overview",
+    "/transactions": "Transactions",
+    "/accounts": "Accounts",
+    "/categories": "Categories",
+    "/groups": "Group Expenses",
+    "/recurring": "Recurring Deductions",
+    "/budgets": "Budgets",
+    "/reports": "Finance Reports",
+    "/settings": "Settings",
   };
+
+  function getPageTitle(path: string): string {
+    const match = Object.keys(ROUTE_TITLE_MAP).find((route) =>
+      path.startsWith(route),
+    );
+
+    return match ? ROUTE_TITLE_MAP[match] : "Dashboard";
+  }
 
   return (
     <div className="flex min-h-screen bg-background font-body selection:bg-primary/10 selection:text-primary">
@@ -62,23 +93,23 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
       </aside>
 
       {/* Mobile Sidebar Overlay */}
-      <div 
+      <div
         className={cn(
           "fixed inset-0 z-100 lg:hidden bg-black/40 backdrop-blur-sm transition-opacity duration-300 pointer-events-none opacity-0",
-          isSidebarOpen && "opacity-100 pointer-events-auto"
+          isSidebarOpen && "opacity-100 pointer-events-auto",
         )}
         onClick={() => setIsSidebarOpen(false)}
       />
 
       {/* Mobile Sidebar Sidebar */}
-      <aside 
+      <aside
         className={cn(
           "fixed inset-y-0 left-0 z-100 w-80 lg:hidden transform transition-transform duration-300 ease-in-out -translate-x-full",
-          isSidebarOpen && "translate-x-0"
+          isSidebarOpen && "translate-x-0",
         )}
       >
         <SidebarContent onItemClick={() => setIsSidebarOpen(false)} />
-        <button 
+        <button
           onClick={() => setIsSidebarOpen(false)}
           className="absolute top-4 right-4 p-2 text-text-secondary hover:text-text-primary transition-colors lg:hidden rounded-xl hover:bg-highlight/50"
         >
@@ -91,7 +122,7 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
         {/* Top bar */}
         <header className="h-20 bg-surface/80 backdrop-blur-lg flex items-center justify-between px-4 lg:px-10 border-b border-border/10 sticky top-0 z-40 transition-all">
           <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
-            <button 
+            <button
               onClick={() => setIsSidebarOpen(true)}
               className="lg:hidden p-2.5 text-text-secondary hover:text-text-primary hover:bg-highlight/50 transition-all rounded-xl shrink-0"
               aria-label="Open menu"
@@ -99,12 +130,14 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex flex-col min-w-0">
-               <h2 className="text-lg sm:text-xl font-bold text-text-primary font-display tracking-tight leading-none truncate">
+              <h2 className="text-lg sm:text-xl font-bold text-text-primary font-display tracking-tight leading-none truncate">
                 {getPageTitle(pathname)}
               </h2>
               <div className="flex items-center gap-1.5 mt-1 overflow-hidden">
-                 <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse shrink-0" />
-                 <span className="text-[9px] sm:text-[10px] uppercase font-bold text-text-secondary/50 tracking-wider truncate">Live System — Real-time</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse shrink-0" />
+                <span className="text-[9px] sm:text-[10px] uppercase font-bold text-text-secondary/50 tracking-wider truncate">
+                  Live System — Real-time
+                </span>
               </div>
             </div>
           </div>
@@ -113,8 +146,12 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
             {/* Search - Desktop */}
             <div className="hidden md:flex items-center bg-elevated/40 border border-border/20 rounded-2xl px-4 py-2 text-text-muted hover:border-primary/30 transition-all cursor-text gap-3 min-w-40 xl:min-w-75">
               <Search className="w-4 h-4" />
-              <span className="text-sm font-medium truncate">Search logs...</span>
-              <kbd className="ml-auto hidden xl:inline-flex px-2 py-0.5 rounded-md bg-highlight text-[10px] font-bold border border-border/50">⌘K</kbd>
+              <span className="text-sm font-medium truncate">
+                Search logs...
+              </span>
+              <kbd className="ml-auto hidden xl:inline-flex px-2 py-0.5 rounded-md bg-highlight text-[10px] font-bold border border-border/50">
+                ⌘K
+              </kbd>
             </div>
 
             {/* Mobile Search Icon */}
@@ -123,10 +160,10 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
             </button>
 
             <div className="flex items-center gap-2 lg:gap-4 h-10 pr-1 border-r border-border/10">
-                <button className="p-2.5 text-text-secondary/70 hover:text-text-primary hover:bg-highlight/50 transition-all rounded-xl relative group">
-                  <Bell className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                  <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-tertiary border-2 border-surface rounded-full shadow-sm" />
-                </button>
+              <button className="p-2.5 text-text-secondary/70 hover:text-text-primary hover:bg-highlight/50 transition-all rounded-xl relative group">
+                <Bell className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-tertiary border-2 border-surface rounded-full shadow-sm" />
+              </button>
             </div>
 
             {/* User Dropdown Profile */}
@@ -136,24 +173,24 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
                   {user.name ?? "Account"}
                 </p>
                 <p className="text-[10px] font-semibold text-text-secondary/60 mt-1 uppercase tracking-tighter">
-                   Professional Plan
+                  Professional Plan
                 </p>
               </div>
-              
+
               <div className="relative">
                 <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-2xl bg-linear-to-br from-primary to-primary-container p-0.5 shadow-xl shadow-primary/10 group-hover:scale-105 transition-all">
                   <div className="w-full h-full rounded-[14px] bg-surface flex items-center justify-center overflow-hidden">
-                     {user.image ? (
-                        <img src={user.image} alt="User" />
-                     ) : (
-                        <User className="w-6 h-6 text-primary" />
-                     )}
+                    {user.image ? (
+                      <img src={user.image} alt="User" />
+                    ) : (
+                      <User className="w-6 h-6 text-primary" />
+                    )}
                   </div>
                 </div>
                 <div className="lg:hidden absolute -bottom-1 -right-1 w-4 h-4 bg-secondary border-2 border-surface rounded-full shadow-sm" />
               </div>
-              
-              <button 
+
+              <button
                 onClick={() => setIsLogoutModalOpen(true)}
                 className="hidden lg:flex p-2.5 text-text-secondary/70 hover:text-tertiary hover:bg-tertiary/5 transition-all rounded-xl"
                 title="Sign out"
@@ -161,11 +198,11 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
-            
+
             {/* Mobile Sign out */}
-            <button 
-               onClick={() => setIsLogoutModalOpen(true)}
-               className="lg:hidden p-2.5 text-tertiary hover:bg-tertiary/10 transition-all rounded-xl"
+            <button
+              onClick={() => setIsLogoutModalOpen(true)}
+              className="lg:hidden p-2.5 text-tertiary hover:bg-tertiary/10 transition-all rounded-xl"
             >
               <LogOut className="w-5 h-5" />
             </button>
@@ -174,10 +211,10 @@ export function DashboardLayoutClient({ children, user }: DashboardLayoutClientP
 
         {/* Page content */}
         <section className="flex-1 p-4 lg:p-10 overflow-y-auto custom-scrollbar relative">
-          <div className="max-w-[1800px] mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div className="max-w-450 mx-auto animate-in fade-in slide-in-from-bottom-2 duration-500">
             {children}
           </div>
-          
+
           {/* Subtle Background Accent */}
           <div className="fixed -top-24 -right-24 w-96 h-96 bg-primary/5 blur-[120px] rounded-full pointer-events-none -z-10" />
           <div className="fixed -bottom-24 -left-24 w-96 h-96 bg-secondary/5 blur-[120px] rounded-full pointer-events-none -z-10" />

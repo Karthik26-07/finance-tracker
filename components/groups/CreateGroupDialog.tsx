@@ -1,10 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useActionState, startTransition } from 'react'
 import { X, Users, Layout, Hash } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { createGroup } from '@/actions/groups'
+import { createGroup } from '@/modules/groups/groups.action'
 import { useRouter } from 'next/navigation'
+import { ActionResponse } from '@/lib/errors'
+import { toast } from '@/lib/store/useToast'
 
 interface CreateGroupDialogProps {
   isOpen: boolean
@@ -25,30 +27,38 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
   const [name, setName] = React.useState('')
   const [description, setDescription] = React.useState('')
   const [selectedColor, setSelectedColor] = React.useState(COLORS[0])
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      const formData = new FormData()
-      formData.append('name', name)
-      formData.append('description', description)
-      formData.append('color', selectedColor)
-      formData.append('icon', 'users') // Default icon
-
-      const newGroup = await createGroup(formData)
+  // Modern React 19 approach
+  const [state, formAction, isPending] = useActionState<ActionResponse | null, FormData>(
+    async (prevState, formData) => {
+      const result = await createGroup(formData)
       
-      onClose()
-      setName('')
-      setDescription('')
-      router.push(`/groups?groupId=${newGroup.id}`)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setIsSubmitting(false)
-    }
+      if (result && 'id' in result) {
+        toast.success('Collective initialized successfully')
+        onClose()
+        setName('')
+        setDescription('')
+        router.push(`/groups?groupId=${result.id}`)
+        return null
+      }
+      
+      return result as ActionResponse
+    },
+    null
+  )
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    const formData = new FormData()
+    formData.append('name', name)
+    formData.append('description', description)
+    formData.append('color', selectedColor)
+    formData.append('icon', 'users') // Default icon
+
+    startTransition(() => {
+      formAction(formData)
+    })
   }
 
   return (
@@ -78,6 +88,12 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
             </div>
 
             <form onSubmit={handleSubmit} className="p-10 space-y-8">
+              {state && "error" in state && (
+                <div className="p-4 text-xs font-bold text-accent-danger bg-accent-danger/10 rounded-2xl border border-accent-danger/20 animate-in fade-in slide-in-from-top-1">
+                  {state.error}
+                </div>
+              )}
+
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] font-mono opacity-60 px-1">Collective Name</label>
                 <div className="relative group">
@@ -91,6 +107,7 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
                      type="text"
                      value={name}
                      onChange={(e) => setName(e.target.value)}
+                     disabled={isPending}
                    />
                 </div>
               </div>
@@ -106,6 +123,7 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
                      placeholder="What is this collective for?" 
                      value={description}
                      onChange={(e) => setDescription(e.target.value)}
+                     disabled={isPending}
                    />
                 </div>
               </div>
@@ -121,6 +139,7 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
                         onClick={() => setSelectedColor(color)}
                         className={`w-10 h-10 rounded-xl transition-all relative flex items-center justify-center shadow-sm hover:scale-110 active:scale-95`}
                         style={{ backgroundColor: color }}
+                        disabled={isPending}
                       >
                         {selectedColor === color && (
                           <div className="w-2 h-2 bg-white rounded-full shadow-sm animate-in zoom-in duration-300" />
@@ -134,10 +153,10 @@ export function CreateGroupDialog({ isOpen, onClose }: CreateGroupDialogProps) {
               <div className="pt-4">
                 <button 
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isPending}
                   className="w-full bg-linear-to-br from-primary to-primary-container text-white py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-[1.01] transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3"
                 >
-                  {isSubmitting ? (
+                  {isPending ? (
                     'Synchronizing Node...'
                   ) : (
                     <><Hash size={18} strokeWidth={3} /> Initialize Collective</>

@@ -3,7 +3,7 @@
 import React from 'react'
 import { X, Calendar, Wallet, Check, Users, ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { addGroupExpense } from '@/actions/groups'
+import { addGroupExpense } from '@/modules/groups/groups.action'
 
 interface ManualGroupExpenseDialogProps {
   isOpen: boolean

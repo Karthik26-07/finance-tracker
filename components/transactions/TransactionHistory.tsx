@@ -4,7 +4,7 @@ import React, { useState, useTransition } from 'react'
 import { Transaction, Account, Category } from '@/lib/db/schema'
 import { TransactionItem } from './TransactionItem'
 import { Trash2, CheckSquare, Square, X } from 'lucide-react'
-import { bulkDeleteTransactions } from '@/actions/transactions'
+import { bulkDeleteTransactions } from '@/modules/transactions/transactions.action'
 import { ConfirmationDialog } from '../ui/ConfirmationDialog'
 
 interface TransactionHistoryProps {

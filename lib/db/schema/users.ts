@@ -1,4 +1,5 @@
 import { pgTable, uuid, varchar, char, text, timestamp } from 'drizzle-orm/pg-core'
+import { type InferSelectModel, type InferInsertModel } from 'drizzle-orm'
 
 export const users = pgTable('users', {
   id:           uuid('id').primaryKey().defaultRandom(),
@@ -11,3 +12,6 @@ export const users = pgTable('users', {
   createdAt:    timestamp('created_at', { withTimezone: true }).defaultNow(),
   updatedAt:    timestamp('updated_at', { withTimezone: true }).defaultNow(),
 })
+
+export type User = InferSelectModel<typeof users>
+export type NewUser = InferInsertModel<typeof users>

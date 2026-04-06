@@ -8,7 +8,7 @@ import { Plus, Search, Filter, Layers, ChevronDown, X } from 'lucide-react'
 import { CategoryExplorer } from './CategoryExplorer'
 import { ConfirmationDialog } from '../ui/ConfirmationDialog'
 import { Modal } from '../ui/Modal'
-import { deleteCategory } from '@/actions/categories'
+import { deleteCategory } from '@/modules/categories/categories.action'
 import { toast } from '@/lib/store/useToast'
 
 interface CategoryListProps {

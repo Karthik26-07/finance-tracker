@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition } from 'react'
 import { Category } from '@/lib/db/schema'
-import { deleteCategory } from '@/actions/categories'
+import { deleteCategory } from '@/modules/categories/categories.action'
 import { CategoryForm } from '../forms/CategoryForm'
 import { Trash2, Edit3, Eye, ArrowRight, X, Info, Layers } from 'lucide-react'
 import { ConfirmationDialog } from '../ui/ConfirmationDialog'

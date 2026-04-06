@@ -2,9 +2,11 @@ import React from 'react'
 import Link from 'next/link'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import { getAccountsWithBalance } from '@/lib/db/queries/accounts'
+import { AccountRepository } from '@/modules/accounts/accounts.repository'
 import { AccountList } from '@/components/accounts/AccountList'
 import { PageHeader } from '@/components/ui/PageHeader'
+
+const accountRepository = new AccountRepository()
 
 export default async function AccountsPage() {
   const session = await auth()
@@ -12,7 +14,7 @@ export default async function AccountsPage() {
     redirect('/login')
   }
 
-  const accounts = await getAccountsWithBalance(session.user.id)
+  const accounts = await accountRepository.getAccountsByUserId(session.user.id)
 
   return (
     <div className="space-y-8">

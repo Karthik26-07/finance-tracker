@@ -1,13 +1,15 @@
 'use client'
 
-import React, { useState, useTransition } from 'react'
+import React, { useState, useActionState, startTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { transferSchema, TransferInput } from '@/lib/validations/accounts'
-import { transferFunds } from '@/actions/accounts'
+import { transferFunds } from '@/modules/accounts/accounts.action'
 import { Account } from '@/types'
 import { ConfirmationDialog } from '@/components/ui/ConfirmationDialog'
+import { toast } from '@/lib/store/useToast'
+import { ActionResponse } from '@/lib/errors'
 
 interface TransferFormProps {
   accounts: Account[]
@@ -16,10 +18,27 @@ interface TransferFormProps {
 
 export function TransferForm({ accounts, onSuccess }: TransferFormProps) {
   const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
   const [showConfirm, setShowConfirm] = useState(false)
   const [formData, setFormData] = useState<TransferInput | null>(null)
+
+  // Modern React 19 approach
+  const [state, formAction, isPending] = useActionState<ActionResponse | null, TransferInput>(
+    async (prevState, input) => {
+      const result = await transferFunds(input)
+      if (result && 'success' in result) {
+        toast.success('Funds transferred successfully')
+        if (onSuccess) {
+          onSuccess()
+        } else {
+          router.push('/accounts')
+          router.refresh()
+        }
+        return null
+      }
+      return result as ActionResponse
+    },
+    null
+  )
 
   const { register, handleSubmit, formState: { errors } } = useForm<TransferInput>({
     resolver: zodResolver(transferSchema) as Resolver<TransferInput>,
@@ -28,8 +47,6 @@ export function TransferForm({ accounts, onSuccess }: TransferFormProps) {
     }
   })
 
-  // Exclude inactive accounts if necessary, here we assume accounts prop is already filtered
-  
   const onSubmit = (data: TransferInput) => {
     setFormData(data)
     setShowConfirm(true)
@@ -38,30 +55,17 @@ export function TransferForm({ accounts, onSuccess }: TransferFormProps) {
   const onConfirmAction = () => {
     if (!formData) return
     setShowConfirm(false)
-    setError(null)
-    startTransition(async () => {
-      try {
-        const result = await transferFunds(formData)
-        if (result && 'error' in result) {
-          setError(result.error)
-          return
-        }
-        if (onSuccess) {
-          onSuccess()
-        } else {
-          router.push('/accounts')
-        }
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'An unexpected error occurred')
-      }
+    
+    startTransition(() => {
+      formAction(formData)
     })
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {error && (
+      {state && 'error' in state && (
         <div className="p-4 text-sm text-accent-danger bg-accent-danger/10 rounded-xl border border-accent-danger/20">
-          {error}
+          {state.error}
         </div>
       )}
 
